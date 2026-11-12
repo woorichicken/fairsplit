@@ -2,7 +2,7 @@
    .../paypal-ai-hackathon/design/DESIGN.md · design/evidence/stripe/measure/raw-1440.json.
    [실측] 레퍼런스에서 잰 값 · [결정] 우리가 정한 값. 화면 코드는 이 변수만 쓴다.
    기존 변수 이름은 유지하고 값만 바꿨다(다른 세션이 쓰는 중). 새 이름은 아래쪽에 더했다. */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   /* 면 */
@@ -90,7 +90,7 @@
   --m-shadow-lift: 0 18px 40px rgba(10, 10, 12, 0.22);  /* [결정] 고정 버튼·검은 면 */
   --m-shadow-pass: 0 -6px 16px rgba(0, 0, 0, 0.35);     /* [결정] 겹친 패스 위쪽 그림자 — 앞 장과 갈라 보이게 */
   --t-largetitle: 700 30px/36px var(--font);            /* [레퍼런스] iOS large title(Money · Wallet) */
-  --t-cash-hero: 700 42px/44px var(--font);             /* [레퍼런스] Cash App 랜딩 제목 — 아주 굵고 크다(fix1: 500 은 얇아 보였다). 800 은 글꼴 요청에 굵기를 더해야 해서 데스크톱 글자 모양이 바뀐다 → 이미 받는 700 */
+  --t-cash-hero: 800 42px/44px var(--font);             /* [레퍼런스] Cash App 랜딩 제목 — 아주 굵고 크다(fix1: 500 은 얇아 보였다). 800 은 글꼴 요청에 굵기 하나를 더한다(데스크톱 픽셀 차이 0 확인) */
   --t-balance: 600 56px/58px var(--font);               /* [레퍼런스] Cash App $789.13 — 화면에서 가장 큰 글자 */
   --t-card-amount: 600 32px/36px var(--font);           /* [레퍼런스] Cash App 카드 안 $980.00 · $320.00 */
   --t-pass-name: 700 22px/26px var(--font);             /* [레퍼런스] Wallet 패스 왼쪽 이름(DUNKIN' · DELTA) */
