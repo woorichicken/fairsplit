@@ -8,7 +8,7 @@ const SCREENS = [
   { name: 'landing', path: '/', ready: (p) => p.getByRole('region', { name: 'Example split' }).waitFor() },
   { name: 'fund', path: '/p/31c064d0bb7e', ready: (p) => p.getByRole('button', { name: /PayPal/ }).first().waitFor() },
   { name: 'decide', path: '/p/fe9f2364d485', ready: (p) => p.getByRole('heading', { name: /Proposed split/ }).waitFor() },
-  { name: 'paid', path: '/p/0b8e5bd102a5', ready: (p) => p.getByRole('heading', { name: /Payout receipt/ }).waitFor({ timeout: 20_000 }) },
+  { name: 'paid', path: '/p/797aad12a5a3', ready: (p) => p.getByRole('heading', { name: /Payout receipt/ }).waitFor({ timeout: 20_000 }) },
 ];
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2, locale: 'en-US', reducedMotion: 'reduce' });

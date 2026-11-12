@@ -1,5 +1,5 @@
 {
-  "id": "0b8e5bd102a5",
+  "id": "797aad12a5a3",
   "title": "Spring launch short — Moonbrew Coffee",
   "client": {
     "name": "Moonbrew Coffee"
@@ -166,27 +166,27 @@
   "approvals": {},
   "events": [
     {
-      "at": "2026-11-12T05:29:50.930Z",
+      "at": "2026-11-12T12:24:08.995Z",
       "text": "Project created with the demo production log (15 events)."
     },
     {
-      "at": "2026-11-12T05:30:54.076Z",
-      "text": "AI (claude-sonnet-5-5) proposed split v1 from the production log."
+      "at": "2026-11-12T12:24:50.012Z",
+      "text": "AI (Claude) proposed split v1 from the production log."
     }
   ],
   "proposal": {
     "version": 1,
-    "createdAt": "2026-11-12T05:30:47.307Z",
+    "createdAt": "2026-11-12T12:24:43.028Z",
     "by": "ai",
     "model": "claude-sonnet-5-5",
-    "summary": "Split follows time spent and client-driven rework: Jun spent the most time on four cuts and export, Mina wrote the script through three versions, and Sora recorded the voiceover three times.",
+    "summary": "Split follows time spent and client-driven rework. Jun did the most hours across four cuts and the export, Mina wrote three script versions, and Sora recorded the voiceover three times.",
     "shares": [
       {
         "contributorId": "mina",
-        "percent": 33,
+        "percent": 32,
         "reasons": [
           {
-            "text": "Wrote the script and shaped the story and voiceover; 165 minutes over three versions.",
+            "text": "Wrote script v1 and shaped the whole video; 165 minutes total.",
             "eventIds": [
               "e02",
               "e04",
@@ -194,24 +194,25 @@
             ]
           },
           {
-            "text": "Revised after client asked for a shorter intro and a product-shot close.",
+            "text": "Reworked the script after client feedback (shorter intro, product close) and fit it to 28 seconds.",
             "eventIds": [
               "e03",
-              "e04"
+              "e04",
+              "e05"
             ]
           }
         ],
         "amount": {
-          "value": "198.00",
+          "value": "192.00",
           "currency": "USD"
         }
       },
       {
         "contributorId": "jun",
-        "percent": 47,
+        "percent": 52,
         "reasons": [
           {
-            "text": "Most time on the job: four edit cuts plus export, 265 minutes.",
+            "text": "Four edit cuts plus export, 265 minutes, the most time of anyone.",
             "eventIds": [
               "e07",
               "e09",
@@ -221,7 +222,7 @@
             ]
           },
           {
-            "text": "Fixed subtitle overflow and re-synced new voiceovers after client feedback.",
+            "text": "Fixed subtitles to one line and re-synced the new voiceover after client feedback.",
             "eventIds": [
               "e08",
               "e09",
@@ -230,13 +231,13 @@
           }
         ],
         "amount": {
-          "value": "282.00",
+          "value": "312.00",
           "currency": "USD"
         }
       },
       {
         "contributorId": "sora",
-        "percent": 20,
+        "percent": 16,
         "reasons": [
           {
             "text": "Recorded the voiceover and delivered the best take.",
@@ -245,7 +246,7 @@
             ]
           },
           {
-            "text": "Re-recorded the full voiceover twice for a warmer tone as the client asked.",
+            "text": "Re-recorded the full voiceover twice for a warmer tone, as the client asked.",
             "eventIds": [
               "e08",
               "e10",
@@ -254,7 +255,7 @@
           }
         ],
         "amount": {
-          "value": "120.00",
+          "value": "96.00",
           "currency": "USD"
         }
       }
@@ -269,8 +270,20 @@
         "result": "get_disputes() → 0 open"
       },
       {
+        "tool": "get_contributor",
+        "result": "get_contributor(mina) → Mina, Scriptwriter"
+      },
+      {
+        "tool": "get_contributor",
+        "result": "get_contributor(jun) → Jun, Video editor"
+      },
+      {
+        "tool": "get_contributor",
+        "result": "get_contributor(sora) → Sora, Voice actor"
+      },
+      {
         "tool": "submit_proposal",
-        "result": "mina 33%, jun 47%, sora 20%"
+        "result": "mina 32%, jun 52%, sora 16%"
       }
     ]
   }

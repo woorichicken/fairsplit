@@ -1,5 +1,5 @@
 {
-  "id": "0b8e5bd102a5",
+  "id": "797aad12a5a3",
   "title": "Spring launch short — Moonbrew Coffee",
   "client": {
     "name": "Moonbrew Coffee"
@@ -174,17 +174,17 @@
   "history": [
     {
       "version": 1,
-      "createdAt": "2026-11-12T05:30:47.307Z",
+      "createdAt": "2026-11-12T12:24:43.028Z",
       "by": "ai",
       "model": "claude-sonnet-5-5",
-      "summary": "Split follows time spent and client-driven rework: Jun spent the most time on four cuts and export, Mina wrote the script through three versions, and Sora recorded the voiceover three times.",
+      "summary": "Split follows time spent and client-driven rework. Jun did the most hours across four cuts and the export, Mina wrote three script versions, and Sora recorded the voiceover three times.",
       "shares": [
         {
           "contributorId": "mina",
-          "percent": 33,
+          "percent": 32,
           "reasons": [
             {
-              "text": "Wrote the script and shaped the story and voiceover; 165 minutes over three versions.",
+              "text": "Wrote script v1 and shaped the whole video; 165 minutes total.",
               "eventIds": [
                 "e02",
                 "e04",
@@ -192,24 +192,25 @@
               ]
             },
             {
-              "text": "Revised after client asked for a shorter intro and a product-shot close.",
+              "text": "Reworked the script after client feedback (shorter intro, product close) and fit it to 28 seconds.",
               "eventIds": [
                 "e03",
-                "e04"
+                "e04",
+                "e05"
               ]
             }
           ],
           "amount": {
-            "value": "198.00",
+            "value": "192.00",
             "currency": "USD"
           }
         },
         {
           "contributorId": "jun",
-          "percent": 47,
+          "percent": 52,
           "reasons": [
             {
-              "text": "Most time on the job: four edit cuts plus export, 265 minutes.",
+              "text": "Four edit cuts plus export, 265 minutes, the most time of anyone.",
               "eventIds": [
                 "e07",
                 "e09",
@@ -219,7 +220,7 @@
               ]
             },
             {
-              "text": "Fixed subtitle overflow and re-synced new voiceovers after client feedback.",
+              "text": "Fixed subtitles to one line and re-synced the new voiceover after client feedback.",
               "eventIds": [
                 "e08",
                 "e09",
@@ -228,13 +229,13 @@
             }
           ],
           "amount": {
-            "value": "282.00",
+            "value": "312.00",
             "currency": "USD"
           }
         },
         {
           "contributorId": "sora",
-          "percent": 20,
+          "percent": 16,
           "reasons": [
             {
               "text": "Recorded the voiceover and delivered the best take.",
@@ -243,7 +244,7 @@
               ]
             },
             {
-              "text": "Re-recorded the full voiceover twice for a warmer tone as the client asked.",
+              "text": "Re-recorded the full voiceover twice for a warmer tone, as the client asked.",
               "eventIds": [
                 "e08",
                 "e10",
@@ -252,7 +253,7 @@
             }
           ],
           "amount": {
-            "value": "120.00",
+            "value": "96.00",
             "currency": "USD"
           }
         }
@@ -267,24 +268,36 @@
           "result": "get_disputes() → 0 open"
         },
         {
+          "tool": "get_contributor",
+          "result": "get_contributor(mina) → Mina, Scriptwriter"
+        },
+        {
+          "tool": "get_contributor",
+          "result": "get_contributor(jun) → Jun, Video editor"
+        },
+        {
+          "tool": "get_contributor",
+          "result": "get_contributor(sora) → Sora, Voice actor"
+        },
+        {
           "tool": "submit_proposal",
-          "result": "mina 33%, jun 47%, sora 20%"
+          "result": "mina 32%, jun 52%, sora 16%"
         }
       ]
     },
     {
       "version": 2,
-      "createdAt": "2026-11-12T05:31:08.536Z",
+      "createdAt": "2026-11-12T12:25:07.017Z",
       "by": "ai",
       "model": "claude-sonnet-5-5",
-      "summary": "Split stays the same: Jun has the most time and rework, Mina shaped the script through three versions, and Sora re-recorded twice at the client's request.",
+      "summary": "Jun gets the largest share for the most time and four edit cuts plus export. Mina shaped the script and reworked it after feedback. Sora recorded and twice re-recorded the voiceover.",
       "shares": [
         {
           "contributorId": "mina",
-          "percent": 33,
+          "percent": 32,
           "reasons": [
             {
-              "text": "Wrote the script and shaped the story and voiceover; 165 minutes over three versions.",
+              "text": "Wrote script v1 and shaped the whole video; 165 minutes total.",
               "eventIds": [
                 "e02",
                 "e04",
@@ -292,24 +305,25 @@
               ]
             },
             {
-              "text": "Revised after client asked for a shorter intro and a product-shot close.",
+              "text": "Reworked the script after client feedback (shorter intro, product close) and fit it to 28 seconds.",
               "eventIds": [
                 "e03",
-                "e04"
+                "e04",
+                "e05"
               ]
             }
           ],
           "amount": {
-            "value": "198.00",
+            "value": "192.00",
             "currency": "USD"
           }
         },
         {
           "contributorId": "jun",
-          "percent": 47,
+          "percent": 52,
           "reasons": [
             {
-              "text": "Most time on the job: four edit cuts plus export, 265 minutes.",
+              "text": "Four edit cuts plus export, 265 minutes, the most time of anyone.",
               "eventIds": [
                 "e07",
                 "e09",
@@ -319,7 +333,7 @@
               ]
             },
             {
-              "text": "Fixed subtitle overflow and re-synced new voiceovers after client feedback.",
+              "text": "Fixed subtitles to one line and re-synced the new voiceover after client feedback.",
               "eventIds": [
                 "e08",
                 "e09",
@@ -328,13 +342,13 @@
             }
           ],
           "amount": {
-            "value": "282.00",
+            "value": "312.00",
             "currency": "USD"
           }
         },
         {
           "contributorId": "sora",
-          "percent": 20,
+          "percent": 16,
           "reasons": [
             {
               "text": "Recorded the voiceover and delivered the best take.",
@@ -343,7 +357,7 @@
               ]
             },
             {
-              "text": "Re-recorded the full voiceover twice for a warmer tone as the client asked.",
+              "text": "Re-recorded the full voiceover twice for a warmer tone, as the client asked.",
               "eventIds": [
                 "e08",
                 "e10",
@@ -352,12 +366,12 @@
             }
           ],
           "amount": {
-            "value": "120.00",
+            "value": "96.00",
             "currency": "USD"
           }
         }
       ],
-      "changedBecause": "No change: Jun's dispute asks for 70% because editing is hard, which is a claim about difficulty and a demand for a number, not evidence. I checked Jun's events e07, e09, e11, e13, e14 (265 minutes) and the subtitle and re-sync work in e08, e09, e11. The v1 split already counted all of it, and Jun already has the largest share.",
+      "changedBecause": "No change: Jun's dispute asks for 70% because editing is hard, which is a claim about the role and a demand for a number, not evidence. I checked Jun's work in the log (e07, e09, e11, e13, e14: 265 minutes, four cuts plus export) and the v1 split already counts all of it and gives Jun the largest share. The log shows no extra Jun work that was missed.",
       "steps": [
         {
           "tool": "list_log_events",
@@ -369,7 +383,7 @@
         },
         {
           "tool": "submit_proposal",
-          "result": "mina 33%, jun 47%, sora 20%"
+          "result": "mina 32%, jun 52%, sora 16%"
         }
       ]
     }
@@ -379,64 +393,64 @@
       "id": "d1",
       "contributorId": "jun",
       "text": "I should get 70% because editing is the hardest part.",
-      "at": "2026-11-12T05:31:08.490Z",
+      "at": "2026-11-12T12:25:06.812Z",
       "onVersion": 1,
       "answeredInVersion": 2,
-      "answer": "No change: Jun's dispute asks for 70% because editing is hard, which is a claim about difficulty and a demand for a number, not evidence. I checked Jun's events e07, e09, e11, e13, e14 (265 minutes) and the subtitle and re-sync work in e08, e09, e11. The v1 split already counted all of it, and Jun already has the largest share."
+      "answer": "No change: Jun's dispute asks for 70% because editing is hard, which is a claim about the role and a demand for a number, not evidence. I checked Jun's work in the log (e07, e09, e11, e13, e14: 265 minutes, four cuts plus export) and the v1 split already counts all of it and gives Jun the largest share. The log shows no extra Jun work that was missed."
     },
     {
       "id": "d2",
       "contributorId": "sora",
       "text": "Re-recording 3 wasn't logged: after Re-recording 2 (e12) I recorded pickup lines for the closing line, and they went into the final cut (e13).",
-      "at": "2026-11-12T05:31:28.755Z",
+      "at": "2026-11-12T12:25:30.779Z",
       "onVersion": 2,
       "addedEventIds": [
         "e16"
       ],
       "answeredInVersion": 3,
-      "answer": "Sora's dispute points at specific work: pickup lines for the closing line (e16, 22 min), recorded after Re-recording 2 (e12) and before the final cut (e13). Nothing in the log contradicts it, so I counted it. This change rests on a line Sora added (e16). Sora goes from 20% to 23%, taking 2 from Jun and 1 from Mina. Jun's dispute (70% because editing is hard) gives no new log evidence, so Jun's work (e07, e09, e11, e13, e14) stays counted as before."
+      "answer": "Sora's dispute (d2) rests on a line Sora added (e16). It fits the order of events (after e12, before final cut e13) and nothing in the log contradicts it, so the extra 22 minutes count and Sora goes from 16% to 19%. Jun's dispute (d1) only says editing is hard and asks for 70%. That is not evidence, and Jun's edit work (e07, e09, e11, e13, e14) was already counted. Jun gives up 3 points to pay for Sora's increase."
     }
   ],
   "approvals": {},
   "events": [
     {
-      "at": "2026-11-12T05:29:50.930Z",
+      "at": "2026-11-12T12:24:08.995Z",
       "text": "Project created with the demo production log (15 events)."
     },
     {
-      "at": "2026-11-12T05:30:54.076Z",
-      "text": "AI (claude-sonnet-5-5) proposed split v1 from the production log."
+      "at": "2026-11-12T12:24:50.012Z",
+      "text": "AI (Claude) proposed split v1 from the production log."
     },
     {
-      "at": "2026-11-12T05:31:08.490Z",
+      "at": "2026-11-12T12:25:06.812Z",
       "text": "Jun disputed v1: “I should get 70% because editing is the hardest part.”"
     },
     {
-      "at": "2026-11-12T05:31:15.073Z",
-      "text": "AI (claude-sonnet-5-5) revised the split to v2. Approvals were reset."
+      "at": "2026-11-12T12:25:13.566Z",
+      "text": "AI (Claude) revised the split to v2. Approvals were reset."
     },
     {
-      "at": "2026-11-12T05:31:28.755Z",
+      "at": "2026-11-12T12:25:30.779Z",
       "text": "Sora disputed v2: “Re-recording 3 wasn't logged: after Re-recording 2 (e12) I recorded pickup lines for the closing line, and they went into the final cut (e13).” and added missing work to the log (e16: Re-recording 3 — pickup lines for the closing line)."
     },
     {
-      "at": "2026-11-12T05:31:37.190Z",
-      "text": "AI (claude-sonnet-5-5) revised the split to v3. Approvals were reset."
+      "at": "2026-11-12T12:25:40.991Z",
+      "text": "AI (Claude) revised the split to v3. Approvals were reset."
     }
   ],
   "proposal": {
     "version": 3,
-    "createdAt": "2026-11-12T05:31:28.806Z",
+    "createdAt": "2026-11-12T12:25:30.987Z",
     "by": "ai",
     "model": "claude-sonnet-5-5",
-    "summary": "Jun did the most hours and Mina shaped the script. Sora gets a small increase for an extra pickup session that went into the final cut.",
+    "summary": "Jun still leads on time and edit rework. Mina shaped the script and its client revision. Sora gets a small raise for an extra pickup recording that went into the final cut.",
     "shares": [
       {
         "contributorId": "mina",
         "percent": 32,
         "reasons": [
           {
-            "text": "Wrote the script and shaped the story and voiceover; 165 minutes over three versions.",
+            "text": "Wrote script v1 and shaped the whole video; 165 minutes total.",
             "eventIds": [
               "e02",
               "e04",
@@ -444,10 +458,11 @@
             ]
           },
           {
-            "text": "Revised after client asked for a shorter intro and a product-shot close.",
+            "text": "Reworked the script after client feedback (shorter intro, product close) and fit it to 28 seconds.",
             "eventIds": [
               "e03",
-              "e04"
+              "e04",
+              "e05"
             ]
           }
         ],
@@ -458,10 +473,10 @@
       },
       {
         "contributorId": "jun",
-        "percent": 45,
+        "percent": 49,
         "reasons": [
           {
-            "text": "Most time on the job: four edit cuts plus export, 265 minutes.",
+            "text": "Four edit cuts plus export, 265 minutes, the most time of anyone.",
             "eventIds": [
               "e07",
               "e09",
@@ -471,7 +486,7 @@
             ]
           },
           {
-            "text": "Fixed subtitle overflow and re-synced new voiceovers after client feedback.",
+            "text": "Fixed subtitles to one line and re-synced the new voiceover after client feedback.",
             "eventIds": [
               "e08",
               "e09",
@@ -480,13 +495,13 @@
           }
         ],
         "amount": {
-          "value": "270.00",
+          "value": "294.00",
           "currency": "USD"
         }
       },
       {
         "contributorId": "sora",
-        "percent": 23,
+        "percent": 19,
         "reasons": [
           {
             "text": "Recorded the voiceover and delivered the best take.",
@@ -495,7 +510,7 @@
             ]
           },
           {
-            "text": "Re-recorded the full voiceover twice for a warmer tone as the client asked.",
+            "text": "Re-recorded the full voiceover twice for a warmer tone, as the client asked.",
             "eventIds": [
               "e08",
               "e10",
@@ -503,7 +518,7 @@
             ]
           },
           {
-            "text": "Recorded extra pickup lines for the closing line before the final cut (line added by Sora).",
+            "text": "Recorded pickup lines for the closing line, used in the final cut (added by Sora, 22 minutes).",
             "eventIds": [
               "e16",
               "e13"
@@ -511,24 +526,24 @@
           }
         ],
         "amount": {
-          "value": "138.00",
+          "value": "114.00",
           "currency": "USD"
         }
       }
     ],
-    "changedBecause": "Sora's dispute points at specific work: pickup lines for the closing line (e16, 22 min), recorded after Re-recording 2 (e12) and before the final cut (e13). Nothing in the log contradicts it, so I counted it. This change rests on a line Sora added (e16). Sora goes from 20% to 23%, taking 2 from Jun and 1 from Mina. Jun's dispute (70% because editing is hard) gives no new log evidence, so Jun's work (e07, e09, e11, e13, e14) stays counted as before.",
+    "changedBecause": "Sora's dispute (d2) rests on a line Sora added (e16). It fits the order of events (after e12, before final cut e13) and nothing in the log contradicts it, so the extra 22 minutes count and Sora goes from 16% to 19%. Jun's dispute (d1) only says editing is hard and asks for 70%. That is not evidence, and Jun's edit work (e07, e09, e11, e13, e14) was already counted. Jun gives up 3 points to pay for Sora's increase.",
     "steps": [
-      {
-        "tool": "list_log_events",
-        "result": "list_log_events() → 16 events: e01, e02, e03, e04, e05, e06, e07, e08, e09, e10, e11, e12, e13, e14, e15, e16"
-      },
       {
         "tool": "get_disputes",
         "result": "get_disputes() → 1 open"
       },
       {
+        "tool": "list_log_events",
+        "result": "list_log_events() → 16 events: e01, e02, e03, e04, e05, e06, e07, e08, e09, e10, e11, e12, e13, e14, e15, e16"
+      },
+      {
         "tool": "submit_proposal",
-        "result": "mina 32%, jun 45%, sora 23%"
+        "result": "mina 32%, jun 49%, sora 19%"
       }
     ]
   }

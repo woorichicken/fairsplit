@@ -1,5 +1,5 @@
 {
-  "id": "0b8e5bd102a5",
+  "id": "797aad12a5a3",
   "title": "Spring launch short — Moonbrew Coffee",
   "client": {
     "name": "Moonbrew Coffee"
@@ -164,17 +164,17 @@
   "history": [
     {
       "version": 1,
-      "createdAt": "2026-11-12T05:30:47.307Z",
+      "createdAt": "2026-11-12T12:24:43.028Z",
       "by": "ai",
       "model": "claude-sonnet-5-5",
-      "summary": "Split follows time spent and client-driven rework: Jun spent the most time on four cuts and export, Mina wrote the script through three versions, and Sora recorded the voiceover three times.",
+      "summary": "Split follows time spent and client-driven rework. Jun did the most hours across four cuts and the export, Mina wrote three script versions, and Sora recorded the voiceover three times.",
       "shares": [
         {
           "contributorId": "mina",
-          "percent": 33,
+          "percent": 32,
           "reasons": [
             {
-              "text": "Wrote the script and shaped the story and voiceover; 165 minutes over three versions.",
+              "text": "Wrote script v1 and shaped the whole video; 165 minutes total.",
               "eventIds": [
                 "e02",
                 "e04",
@@ -182,24 +182,25 @@
               ]
             },
             {
-              "text": "Revised after client asked for a shorter intro and a product-shot close.",
+              "text": "Reworked the script after client feedback (shorter intro, product close) and fit it to 28 seconds.",
               "eventIds": [
                 "e03",
-                "e04"
+                "e04",
+                "e05"
               ]
             }
           ],
           "amount": {
-            "value": "198.00",
+            "value": "192.00",
             "currency": "USD"
           }
         },
         {
           "contributorId": "jun",
-          "percent": 47,
+          "percent": 52,
           "reasons": [
             {
-              "text": "Most time on the job: four edit cuts plus export, 265 minutes.",
+              "text": "Four edit cuts plus export, 265 minutes, the most time of anyone.",
               "eventIds": [
                 "e07",
                 "e09",
@@ -209,7 +210,7 @@
               ]
             },
             {
-              "text": "Fixed subtitle overflow and re-synced new voiceovers after client feedback.",
+              "text": "Fixed subtitles to one line and re-synced the new voiceover after client feedback.",
               "eventIds": [
                 "e08",
                 "e09",
@@ -218,13 +219,13 @@
             }
           ],
           "amount": {
-            "value": "282.00",
+            "value": "312.00",
             "currency": "USD"
           }
         },
         {
           "contributorId": "sora",
-          "percent": 20,
+          "percent": 16,
           "reasons": [
             {
               "text": "Recorded the voiceover and delivered the best take.",
@@ -233,7 +234,7 @@
               ]
             },
             {
-              "text": "Re-recorded the full voiceover twice for a warmer tone as the client asked.",
+              "text": "Re-recorded the full voiceover twice for a warmer tone, as the client asked.",
               "eventIds": [
                 "e08",
                 "e10",
@@ -242,7 +243,7 @@
             }
           ],
           "amount": {
-            "value": "120.00",
+            "value": "96.00",
             "currency": "USD"
           }
         }
@@ -257,8 +258,20 @@
           "result": "get_disputes() → 0 open"
         },
         {
+          "tool": "get_contributor",
+          "result": "get_contributor(mina) → Mina, Scriptwriter"
+        },
+        {
+          "tool": "get_contributor",
+          "result": "get_contributor(jun) → Jun, Video editor"
+        },
+        {
+          "tool": "get_contributor",
+          "result": "get_contributor(sora) → Sora, Voice actor"
+        },
+        {
           "tool": "submit_proposal",
-          "result": "mina 33%, jun 47%, sora 20%"
+          "result": "mina 32%, jun 52%, sora 16%"
         }
       ]
     }
@@ -268,44 +281,44 @@
       "id": "d1",
       "contributorId": "jun",
       "text": "I should get 70% because editing is the hardest part.",
-      "at": "2026-11-12T05:31:08.490Z",
+      "at": "2026-11-12T12:25:06.812Z",
       "onVersion": 1,
       "answeredInVersion": 2,
-      "answer": "No change: Jun's dispute asks for 70% because editing is hard, which is a claim about difficulty and a demand for a number, not evidence. I checked Jun's events e07, e09, e11, e13, e14 (265 minutes) and the subtitle and re-sync work in e08, e09, e11. The v1 split already counted all of it, and Jun already has the largest share."
+      "answer": "No change: Jun's dispute asks for 70% because editing is hard, which is a claim about the role and a demand for a number, not evidence. I checked Jun's work in the log (e07, e09, e11, e13, e14: 265 minutes, four cuts plus export) and the v1 split already counts all of it and gives Jun the largest share. The log shows no extra Jun work that was missed."
     }
   ],
   "approvals": {},
   "events": [
     {
-      "at": "2026-11-12T05:29:50.930Z",
+      "at": "2026-11-12T12:24:08.995Z",
       "text": "Project created with the demo production log (15 events)."
     },
     {
-      "at": "2026-11-12T05:30:54.076Z",
-      "text": "AI (claude-sonnet-5-5) proposed split v1 from the production log."
+      "at": "2026-11-12T12:24:50.012Z",
+      "text": "AI (Claude) proposed split v1 from the production log."
     },
     {
-      "at": "2026-11-12T05:31:08.490Z",
+      "at": "2026-11-12T12:25:06.812Z",
       "text": "Jun disputed v1: “I should get 70% because editing is the hardest part.”"
     },
     {
-      "at": "2026-11-12T05:31:15.073Z",
-      "text": "AI (claude-sonnet-5-5) revised the split to v2. Approvals were reset."
+      "at": "2026-11-12T12:25:13.566Z",
+      "text": "AI (Claude) revised the split to v2. Approvals were reset."
     }
   ],
   "proposal": {
     "version": 2,
-    "createdAt": "2026-11-12T05:31:08.536Z",
+    "createdAt": "2026-11-12T12:25:07.017Z",
     "by": "ai",
     "model": "claude-sonnet-5-5",
-    "summary": "Split stays the same: Jun has the most time and rework, Mina shaped the script through three versions, and Sora re-recorded twice at the client's request.",
+    "summary": "Jun gets the largest share for the most time and four edit cuts plus export. Mina shaped the script and reworked it after feedback. Sora recorded and twice re-recorded the voiceover.",
     "shares": [
       {
         "contributorId": "mina",
-        "percent": 33,
+        "percent": 32,
         "reasons": [
           {
-            "text": "Wrote the script and shaped the story and voiceover; 165 minutes over three versions.",
+            "text": "Wrote script v1 and shaped the whole video; 165 minutes total.",
             "eventIds": [
               "e02",
               "e04",
@@ -313,24 +326,25 @@
             ]
           },
           {
-            "text": "Revised after client asked for a shorter intro and a product-shot close.",
+            "text": "Reworked the script after client feedback (shorter intro, product close) and fit it to 28 seconds.",
             "eventIds": [
               "e03",
-              "e04"
+              "e04",
+              "e05"
             ]
           }
         ],
         "amount": {
-          "value": "198.00",
+          "value": "192.00",
           "currency": "USD"
         }
       },
       {
         "contributorId": "jun",
-        "percent": 47,
+        "percent": 52,
         "reasons": [
           {
-            "text": "Most time on the job: four edit cuts plus export, 265 minutes.",
+            "text": "Four edit cuts plus export, 265 minutes, the most time of anyone.",
             "eventIds": [
               "e07",
               "e09",
@@ -340,7 +354,7 @@
             ]
           },
           {
-            "text": "Fixed subtitle overflow and re-synced new voiceovers after client feedback.",
+            "text": "Fixed subtitles to one line and re-synced the new voiceover after client feedback.",
             "eventIds": [
               "e08",
               "e09",
@@ -349,13 +363,13 @@
           }
         ],
         "amount": {
-          "value": "282.00",
+          "value": "312.00",
           "currency": "USD"
         }
       },
       {
         "contributorId": "sora",
-        "percent": 20,
+        "percent": 16,
         "reasons": [
           {
             "text": "Recorded the voiceover and delivered the best take.",
@@ -364,7 +378,7 @@
             ]
           },
           {
-            "text": "Re-recorded the full voiceover twice for a warmer tone as the client asked.",
+            "text": "Re-recorded the full voiceover twice for a warmer tone, as the client asked.",
             "eventIds": [
               "e08",
               "e10",
@@ -373,12 +387,12 @@
           }
         ],
         "amount": {
-          "value": "120.00",
+          "value": "96.00",
           "currency": "USD"
         }
       }
     ],
-    "changedBecause": "No change: Jun's dispute asks for 70% because editing is hard, which is a claim about difficulty and a demand for a number, not evidence. I checked Jun's events e07, e09, e11, e13, e14 (265 minutes) and the subtitle and re-sync work in e08, e09, e11. The v1 split already counted all of it, and Jun already has the largest share.",
+    "changedBecause": "No change: Jun's dispute asks for 70% because editing is hard, which is a claim about the role and a demand for a number, not evidence. I checked Jun's work in the log (e07, e09, e11, e13, e14: 265 minutes, four cuts plus export) and the v1 split already counts all of it and gives Jun the largest share. The log shows no extra Jun work that was missed.",
     "steps": [
       {
         "tool": "list_log_events",
@@ -390,7 +404,7 @@
       },
       {
         "tool": "submit_proposal",
-        "result": "mina 33%, jun 47%, sora 20%"
+        "result": "mina 32%, jun 52%, sora 16%"
       }
     ]
   }
