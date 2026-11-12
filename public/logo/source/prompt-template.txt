@@ -1,0 +1,6 @@
+Image 1 is a reference sheet of 3D clay icons. Copy only its material and lighting: soft 3D clay with chubby rounded forms and a matte finish, gentle studio light from the top left, the same straight-on camera angle seen very slightly from above. Do NOT use its pastel colors.
+Use this palette only: cobalt blue clay (#1d4ed8) as the main color, with small white or very pale blue (#e6edfd) clay highlights. No cyan, no turquoise, no navy-and-cyan pairing, no coral.
+{cell}
+Draw exactly one object: {subject}.
+Center it upright, not tilted, and let it fill about 80 percent of the square canvas with even margins on all sides. Transparent background. No floor, no contact shadow, no cast shadow. No text, no letters, no numbers, no faces, no other objects, no grid, no frame.
+It must stay recognizable at 16 pixels: a bold simple silhouette made of only a few large parts.

@@ -2,9 +2,12 @@ import { lazy, Suspense } from 'react';
 
 /**
  * 피드백 버튼(라쏘런 feedback-kit)의 관문 — 부착 타입 `global`(허용 호스트형). 공개 서비스라 방문자가 곧 제보자다.
- * 호스트를 늘리려면 라쏘런 소스 <앱>-web 의 허용 호스트부터 넓힌다 — 안 그러면 버튼은 뜨는데 보내면 403 이다.
+ * 라쏘런 프로젝트 「FairSplit (fairsplit.solhun.com)」 · 소스 `fairsplit-web` 의 허용 호스트와 같은 목록이다
+ * (fairsplit.solhun.com · localhost:5173 dev · localhost:4173 preview).
+ * 호스트를 늘리려면 소스 허용 호스트부터 넓힌다(`dp update-source-hosts`) — 안 그러면 버튼은 뜨는데 보내면 403 이다.
+ * 127.0.0.1 은 일부러 뺐다 — E2E(vite preview 127.0.0.1) 화면에 버튼이 끼지 않게.
  */
-const FEEDBACK_HOSTS: readonly string[] = ['localhost'];
+const FEEDBACK_HOSTS: readonly string[] = ['fairsplit.solhun.com', 'localhost'];
 
 const ENDPOINT = import.meta.env.VITE_DP_FEEDBACK_URL ?? '';
 const TOKEN = import.meta.env.VITE_DP_FEEDBACK_KEY ?? '';
