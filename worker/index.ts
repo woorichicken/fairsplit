@@ -3,6 +3,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { Project } from '../src/shared/types';
 import { makeDemoProject, parseRecipients } from './demo';
+import { buildImportedProject, ImportError } from './importer';
 import { applyProposal, approve, assertCanFund, assertCanPropose, FlowError, invariantErrors, markCaptured, markFunded, markPaying, openDispute, startFunding, updatePayout } from './flow';
 import { authorizeOrder, captureAuthorization, createOrder, createPayout, getPayout, PayPalError, type PayPalEnv } from './paypal';
 import { propose, type CreateFn } from './split';
@@ -68,6 +69,15 @@ async function route(req: Request, env: Env, url: URL): Promise<Response> {
     const b = await body(req);
     if (b.scenario !== undefined && b.scenario !== 'brand-short') return fail('UNKNOWN_SCENARIO', 'Only "brand-short" exists.', 400);
     return json(await save(env, makeDemoProject(newId(), nowIso(), parseRecipients(env.DEMO_RECIPIENTS))));
+  }
+  if (path === '/api/projects' && m === 'POST') {
+    // 자기 로그로 새 프로젝트 — 검증은 importer.ts, 저장 직전 불변식은 save() 가 한 번 더 본다
+    try {
+      return json(await save(env, buildImportedProject(await body(req), newId(), nowIso())), 201);
+    } catch (e) {
+      if (e instanceof ImportError) return json({ error: { code: 'IMPORT_INVALID', message: e.problems[0], problems: e.problems } }, 400);
+      throw e;
+    }
   }
   const pm = /^\/api\/projects\/([A-Za-z0-9_-]{1,64})(\/[a-z/]+)?$/.exec(path);
   if (!pm) return fail('NOT_FOUND', `No route ${m} ${path}.`, 404);

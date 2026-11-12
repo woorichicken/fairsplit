@@ -51,13 +51,19 @@ export function Avatar({ contributor }: { contributor: Contributor }) {
 
 // ───────── Production log (왼쪽) — 근거 칩을 누르면 해당 줄이 밝아진다 ─────────
 
+const LOG_SCROLL_GAP = 8;
+
 export function LogPanel({ project, highlight }: { project: Project; highlight: readonly string[] }) {
   const listRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
-    if (!highlight.length) return;
-    const first = listRef.current?.querySelector<HTMLElement>(`[data-event-id="${CSS.escape(highlight[0])}"]`);
-    first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const list = listRef.current;
+    if (!highlight.length || !list) return;
+    const first = list.querySelector<HTMLElement>(`[data-event-id="${CSS.escape(highlight[0])}"]`);
+    if (!first) return;
+    // 데스크톱은 목록만 스크롤된다(제목은 고정) — 고른 줄이 잘리지 않게 줄 머리를 목록 위쪽에 맞춘다. 폰은 페이지가 스크롤된다.
+    if (list.scrollHeight > list.clientHeight) list.scrollTo({ top: Math.max(0, first.offsetTop - LOG_SCROLL_GAP), behavior: 'smooth' });
+    else first.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [highlight]);
 
   return (
@@ -123,6 +129,10 @@ export function SplitCard({
   const proposal = project.proposal!;
   const prev = previousProposal(project);
   const version = proposal.version;
+  // 이의가 몫을 바꿨는지 — 안 바꿨으면 「거절」 답으로 보인다
+  const splitMoved = !!prev && proposal.shares.some((s) => prev.shares.find((x) => x.contributorId === s.contributorId)?.percent !== s.percent);
+  const answered = [...project.disputes].reverse().find((d) => d.answeredInVersion === version);
+  const disputerName = answered ? (project.contributors.find((c) => c.id === answered.contributorId)?.name ?? answered.contributorId) : undefined;
 
   return (
     <section className={`card split${compact ? ' split-compact' : ''}`} aria-labelledby={compact ? undefined : 'split-title'} aria-label={compact ? 'Example split' : undefined}>
@@ -132,7 +142,7 @@ export function SplitCard({
         </h2>
         {compact && (
           <span className="badge badge-warn" title="A recorded AI answer from the demo project, not live">
-            Sample
+            Recorded example
           </span>
         )}
         {proposal.by === 'rule' ? (
@@ -148,11 +158,18 @@ export function SplitCard({
       </p>
       {!compact && <p className="small">{proposal.summary}</p>}
 
+      {!compact && <ApprovalStrip project={project} />}
+
       {!compact && prev && proposal.changedBecause && (
-        <div className="changed" role="note" aria-label={`What changed from v${prev.version}`}>
+        <div className="changed" role="note" aria-label={splitMoved ? `What changed from v${prev.version}` : `AI answer to ${disputerName ?? 'the dispute'}`}>
           <strong className="changed-title">
-            What changed from v{prev.version} → v{version}
+            {splitMoved ? `What changed from v${prev.version} → v${version}` : `AI answer to ${disputerName ?? 'the'}’s dispute — split unchanged`}
           </strong>
+          {answered && (
+            <p className="small muted">
+              {disputerName}: “{answered.text}”
+            </p>
+          )}
           <p className="small">{proposal.changedBecause}</p>
         </div>
       )}
@@ -307,32 +324,50 @@ export function ThinkingCard({ title, line, note }: { title: string; line: strin
 
 // ───────── Payout receipt ─────────
 
+/** 영수증 — PayPal 이 돌려준 실제 ID 를 그대로 보인다(주문·승인·capture·배치·항목·거래). 심사위원이 「진짜 돈길」을 확인할 수 있게. */
 export function Receipt({ project }: { project: Project }) {
   const payout = project.payout!;
   const sending = project.status === 'paying';
   const n = payout.items.length;
+  const unclaimed = payout.items.filter((i) => i.status.toUpperCase() === 'UNCLAIMED').length;
+  const ids: [string, string | undefined][] = [
+    ['PayPal order', project.order?.id],
+    ['Authorization', project.order?.authorizationId],
+    ['Capture', project.order?.captureId],
+    ['Payouts batch', payout.batchId],
+  ];
   return (
     <section className="card receipt" aria-labelledby="receipt-title">
       <div className="card-head">
         <h2 id="receipt-title" className="card-title">
           {sending ? `PayPal is sending ${n} payouts…` : 'Payout receipt'}
         </h2>
-        {sending ? <span className="spinner" aria-hidden="true" /> : <span className="badge badge-ok">Paid</span>}
+        {sending ? <span className="spinner" aria-hidden="true" /> : <span className="badge badge-ok">Batch {payout.status}</span>}
       </div>
-      <p className="small muted">
-        One PayPal Payouts batch · <code className="tool">{payout.batchId}</code>
-        {project.order?.captureId && (
-          <>
-            {' '}
-            · capture <code className="tool">{project.order.captureId}</code>
-          </>
-        )}
-      </p>
+      <p className="small muted">One PayPal Payouts batch for all {n} contributors. IDs below come straight from PayPal (sandbox).</p>
+      <dl className="ids">
+        {ids
+          .filter((x): x is [string, string] => Boolean(x[1]))
+          .map(([label, value]) => (
+            <div key={label}>
+              <dt className="small muted">{label}</dt>
+              <dd>
+                <code className="tool">{value}</code>
+              </dd>
+            </div>
+          ))}
+      </dl>
       <ul className="receipt-list">
         {payout.items.map((item) => (
           <ReceiptRow key={item.contributorId} item={item} project={project} />
         ))}
       </ul>
+      {unclaimed > 0 && (
+        <p className="small muted unclaimed-note">
+          Unclaimed means PayPal sent the money and emailed the receiver a claim link. It waits for them to sign in to PayPal. In this sandbox demo
+          the receivers have no sandbox accounts, so {unclaimed === n ? 'all' : unclaimed} {unclaimed === 1 ? 'payout stays' : 'payouts stay'} unclaimed.
+        </p>
+      )}
     </section>
   );
 }
@@ -342,16 +377,20 @@ function ReceiptRow({ item, project }: { item: PayoutItem; project: Project }) {
   const ok = item.status.toUpperCase() === 'SUCCESS';
   return (
     <li className="receipt-row" data-testid={`payout-${item.contributorId}`}>
-      {person && <Avatar contributor={person} />}
-      <div className="share-who">
-        <strong>{person?.name ?? item.contributorId}</strong>
-        <span className="muted small">{person?.paypalEmail}</span>
-      </div>
-      <div className="receipt-right">
+      <div className="receipt-top">
+        {person && <Avatar contributor={person} />}
+        <div className="share-who">
+          <strong>{person?.name ?? item.contributorId}</strong>
+          <span className="muted small email" title={person?.paypalEmail}>
+            {person?.paypalEmail}
+          </span>
+        </div>
         <span className="num">{formatMoney(item.amount)}</span>
-        <span className={`small ${ok ? 'ok' : 'warn'}`}>{payoutStatusLabel(item.status)}</span>
-        <code className="tool">{item.payoutItemId ?? '—'}</code>
       </div>
+      <p className={`small ${ok ? 'ok' : 'warn'}`}>{payoutStatusLabel(item.status)}</p>
+      <p className="small muted receipt-ids">
+        Payout item <code className="tool">{item.payoutItemId ?? '—'}</code> · Transaction <code className="tool">{item.transactionId ?? '—'}</code>
+      </p>
     </li>
   );
 }
@@ -392,4 +431,27 @@ const STATUS_LABEL: Record<Project['status'], string> = {
 
 export function StatusBadge({ status }: { status: Project['status'] }) {
   return <span className={`badge status-${status}`}>{STATUS_LABEL[status]}</span>;
+}
+
+/** 이 판에 누가 동의했는지 — 분배 카드 맨 위에서 바로 보이게 */
+function ApprovalStrip({ project }: { project: Project }) {
+  const version = project.proposal?.version ?? 0;
+  const done = project.contributors.filter((c) => project.approvals[c.id]?.version === version);
+  if (project.status !== 'proposed' && project.status !== 'disputed') return null;
+  return (
+    <p className="approvals small" aria-label={`Approvals for v${version}`}>
+      <span className="muted">
+        Approvals {done.length} of {project.contributors.length}:
+      </span>{' '}
+      {project.contributors.map((c, i) => {
+        const ok = done.includes(c);
+        return (
+          <span key={c.id} className={ok ? 'ok' : 'muted'}>
+            {i > 0 && ' · '}
+            {ok ? '✓' : '○'} {c.name}
+          </span>
+        );
+      })}
+    </p>
+  );
 }

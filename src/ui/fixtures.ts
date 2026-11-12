@@ -2,6 +2,7 @@ import type { Dispute, PayoutItem, Project, Proposal } from '../shared/types';
 import type { Api, FundStart } from './api';
 import recordedV1 from './samples/recorded-v1.json' with { type: 'json' };
 import recordedV2 from './samples/recorded-v2.json' with { type: 'json' };
+import recordedWeak from './samples/recorded-weak.json' with { type: 'json' };
 
 /**
  * 가짜 흐름 — 서버 없이 화면·E2E·캡처를 돌리려고 둔다. `?fixture=draft|v1|v2|paid` 로 켠다.
@@ -22,6 +23,9 @@ const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 
 const V1 = recordedV1 as unknown as Project;
 const V2 = recordedV2 as unknown as Project;
+// 「약한 이의」 실측(s2r3-weak-dispute.json) — Jun 의 70% 요구에 AI 가 답한 그대로. 그 실행의 v1·v2 를 통째로 쓴다(숫자를 섞지 않는다)
+const WEAK = recordedWeak as unknown as Project;
+const WEAK_DISPUTER = WEAK.disputes[0].contributorId;
 const SAMPLE_ORDER = { id: 'SAMPLE-ORDER-1', status: 'COMPLETED', authorizationId: 'SAMPLE-AUTH-1' };
 const CREATED_EVENT = V1.events[0];
 
@@ -112,6 +116,11 @@ export function createFixtureApi(name: FixtureName): Api {
       return reply();
     },
     getProject: async () => reply(),
+    // 샘플 모드에는 서버 검증이 없다 — 이름만 바꾼 처음 상태를 돌려준다(실제 검증은 worker/importer.ts)
+    createProject: async (input) => {
+      state = { ...fixtureProject('draft'), title: input.title || 'Untitled project', client: { name: input.clientName || 'Client' } };
+      return reply();
+    },
     fund: async (): Promise<FundStart> => {
       await wait(NETWORK_MS);
       // 실제 PayPal 대신 같은 화면으로 돌아오는 주소 — 돌아오기 흐름(fund/complete)을 그대로 탄다
@@ -126,7 +135,16 @@ export function createFixtureApi(name: FixtureName): Api {
       return reply(THINK_MS);
     },
     dispute: async (_projectId, contributorId, text) => {
-      if (state.proposal?.version === 1) {
+      if (state.proposal?.version === 1 && contributorId === WEAK_DISPUTER) {
+        state = {
+          ...state,
+          proposal: clone(WEAK.proposal!),
+          history: clone(WEAK.history),
+          approvals: {},
+          disputes: [...state.disputes, { ...clone(WEAK.disputes[0]), text }],
+          events: [...state.events, { at: now(), text: `${WEAK_DISPUTER === 'jun' ? 'Jun' : WEAK_DISPUTER} disputed v1: “${text}”` }, { at: now(), text: 'AI re-checked the split as v2 (recorded answer).' }],
+        };
+      } else if (state.proposal?.version === 1) {
         state = withV2(state, text);
       } else {
         // 기록에 v3 응답은 없다 — 지어내지 않고 판만 올리고 몫은 그대로 둔다(동의는 비운다)

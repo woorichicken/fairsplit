@@ -63,7 +63,7 @@ test('Landing shows a real split card and Try the demo opens the project', async
   await page.goto('/?fixture=v1');
   const preview = page.getByRole('region', { name: 'Example split' });
   await expect(preview).toContainText('AI proposal');
-  await expect(preview).toContainText('Sample');
+  await expect(preview).toContainText('Recorded example');
   await expect(preview).toContainText(`${sharePct(V1, 'sora')}% → ${sharePct(V2, 'sora')}%`);
   await page.getByRole('button', { name: 'Try the demo' }).click();
   await expect(page).toHaveURL(/\/p\/sample\?fixture=v1$/);
@@ -135,4 +135,72 @@ test('state: unknown project id (404)', async ({ page }) => {
   await expect(page.getByRole('alert')).toContainText('does not exist');
   await expect(page.getByRole('button', { name: 'Start a new demo' })).toBeVisible();
   await shot(page, `404-${test.info().project.name}`);
+});
+
+// ───── 3회차: 자기 로그로 새 프로젝트 · 약한 이의 · 실제 데이터 영수증 ─────
+
+test('Use your own log: the example creates a project and opens it', async ({ page }) => {
+  const created = { ...fixtureProject('draft'), id: 'imp1', title: 'Podcast episode 12' };
+  let sent: { contributors?: unknown[]; csv?: string; budget?: string } = {};
+  await page.route('**/api/projects', async (r) => {
+    sent = r.request().postDataJSON();
+    await r.fulfill({ status: 201, json: created });
+  });
+  await page.route('**/api/projects/imp1', (r) => r.fulfill({ json: created }));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Use your own log' }).click();
+  await expect(page).toHaveURL(/\/new$/);
+  await page.getByRole('button', { name: 'Create project' }).click();
+  await expect(page).toHaveURL(/\/p\/imp1$/);
+  await expect(page.getByRole('heading', { name: 'Podcast episode 12' })).toBeVisible();
+  expect(sent.contributors).toHaveLength(3);
+  expect(sent.budget).toBe('450.00');
+  expect(sent.csv?.split('\n')[0]).toBe('at,actor,kind,title,minutes,detail');
+});
+
+test('Use your own log: server problems are listed line by line', async ({ page }) => {
+  await page.route('**/api/projects', (r) =>
+    r.fulfill({ status: 400, json: { error: { code: 'IMPORT_INVALID', message: 'Line 3: kind "coffee" …', problems: ['Line 3: kind "coffee" must be one of brief, draft.', 'Cleo has no lines in the log.'] } } }),
+  );
+  await page.goto('/new');
+  await page.getByRole('button', { name: 'Create project' }).click();
+  const alert = page.getByRole('alert');
+  await expect(alert).toContainText('Please fix these');
+  await expect(alert.getByRole('listitem')).toHaveCount(2);
+  await expect(page).toHaveURL(/\/new$/);
+});
+
+test('weak dispute: the AI answer is shown next to the split', async ({ page }) => {
+  await page.goto('/p/sample?fixture=v1');
+  await page.getByRole('button', { name: /Try a weak dispute \(as Jun\)/ }).click();
+  await expect(page.getByLabel('Viewing as')).toHaveValue('jun');
+  await expect(page.getByLabel(/Something missing\? Tell the AI/)).toHaveValue('I should get 70% because editing is the hardest part.');
+  await page.getByRole('button', { name: 'Send dispute' }).click();
+  const note = page.getByRole('note');
+  await expect(note).toContainText('Jun: “I should get 70% because editing is the hardest part.”');
+  await expect(note).toContainText('not 70%');
+  await expect(page.locator('.dispute-answer')).toContainText('AI:');
+});
+
+test('real paid project: no Sample badge, PayPal IDs and unclaimed explained', async ({ page }) => {
+  const paid = fixtureProject('paid');
+  const real = {
+    ...paid,
+    id: 'real1',
+    order: { id: '43510105SL835515C', status: 'CAPTURED', authorizationId: '07C37982KW8841448', captureId: '07C28288056195432' },
+    payout: { ...paid.payout!, batchId: 'X62XZ7LSPKK3Y', items: paid.payout!.items.map((i, k) => ({ ...i, status: 'UNCLAIMED', payoutItemId: `ITEM${k}`, transactionId: `TX${k}` })) },
+  };
+  await page.route('**/api/projects/real1', (r) => r.fulfill({ json: real }));
+  await page.goto('/p/real1');
+  await expect(page.getByRole('heading', { name: 'Payout receipt' })).toBeVisible();
+  await expect(page.getByText('Sample data')).toHaveCount(0);
+  for (const id of ['43510105SL835515C', '07C37982KW8841448', '07C28288056195432', 'X62XZ7LSPKK3Y', 'TX0', 'ITEM2']) await expect(page.getByText(id)).toBeVisible();
+  await expect(page.getByTestId('payout-sora')).toContainText('Unclaimed — PayPal emailed a claim link (receiver has no sandbox account)');
+});
+
+test('fund step tells the honor period and the sandbox test card', async ({ page }) => {
+  await page.goto('/p/sample?fixture=draft');
+  await expect(page.getByText(/up to 29 days \(3-day honor period\)/)).toBeVisible();
+  await expect(page.getByText('4005 5192 0000 0004')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Fund with PayPal (sandbox)' })).toBeVisible();
 });

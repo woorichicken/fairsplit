@@ -127,7 +127,7 @@ h1, h2, p { margin: 0; }
 .col-log { grid-area: log; min-width: 0; }
 
 /* Production log */
-.log-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-1); }
+.log-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-1); position: relative; }
 .log-row {
   display: grid; grid-template-columns: auto 1fr; gap: var(--s-3); padding: var(--s-2) var(--s-3);
   border-radius: var(--r-m); border: 1px solid transparent; transition: background var(--d-fast) var(--ease);
@@ -177,6 +177,29 @@ h1, h2, p { margin: 0; }
 
 /* 결정·이의 */
 .decide { display: grid; gap: var(--s-3); }
+.btn-quiet { border-color: var(--hair); color: var(--ink-2); font: var(--t-small); }
+.try-weak { justify-self: start; min-height: var(--touch); text-align: left; }
+.dispute-answer { margin: var(--s-1) 0 0; color: var(--ink-2); }
+.approvals { margin: 0 0 var(--s-2); }
+.fund-row { display: grid; gap: var(--s-2); justify-items: start; margin-top: var(--s-3); }
+.sandbox-hint { padding: var(--s-2) var(--s-3); border-radius: var(--r-m); background: var(--page); border: 1px dashed var(--rule-line); color: var(--ink-2); }
+
+/* ───── 자기 로그로 새 프로젝트 ───── */
+.importer { max-width: calc(var(--panel-w) * 2.2); margin: 0 auto; padding: var(--s-6) var(--s-4); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
+.import-form { display: grid; gap: var(--s-5); }
+.import-form fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: var(--s-3); min-width: 0; }
+.import-form legend { padding: 0; margin-bottom: var(--s-2); }
+.import-row { grid-template-columns: minmax(0, 1fr); }
+.field { display: grid; gap: var(--s-1); min-width: 0; }
+.field input, .csv {
+  width: 100%; min-height: var(--touch); padding: 0 var(--s-3); border-radius: var(--r-m); border: 1px solid var(--line); background: var(--surface); font: var(--t-body);
+}
+.field input:focus-visible, .csv:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.csv { padding: var(--s-3); font: var(--t-label); line-height: 1.6; resize: vertical; white-space: pre; overflow-x: auto; }
+.people { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
+.person { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-2); padding: var(--s-3); border: 1px solid var(--hair); border-radius: var(--r-m); }
+.person .btn { justify-self: start; }
+.problems { margin: var(--s-2) 0 0; padding-left: var(--s-5); display: grid; gap: var(--s-1); }
 .slow-note { padding: var(--s-2) var(--s-3); border-radius: var(--r-m); background: var(--state-disputed-bg); color: var(--state-disputed); }
 .fund .card-head { margin-bottom: var(--s-2); }
 .decide .card-head { margin-bottom: 0; }
@@ -189,7 +212,14 @@ h1, h2, p { margin: 0; }
 
 /* Receipt */
 .receipt-list { list-style: none; margin: var(--s-3) 0 0; padding: 0; display: grid; gap: var(--s-2); }
-.receipt-row { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3); border: 1px solid var(--hair); border-radius: var(--r-m); }
+.receipt-row { display: grid; gap: var(--s-1); padding: var(--s-3); border: 1px solid var(--hair); border-radius: var(--r-m); }
+.receipt-top { display: flex; align-items: center; gap: var(--s-3); }
+.receipt-ids { overflow-wrap: anywhere; }
+.email { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ids { display: grid; grid-template-columns: repeat(auto-fit, minmax(calc(var(--panel-w) / 2.5), 1fr)); gap: var(--s-2) var(--s-4); margin: var(--s-3) 0 0; }
+.ids div { min-width: 0; }
+.ids dd { margin: 0; }
+.unclaimed-note { margin-top: var(--s-3); }
 .receipt-right { display: grid; justify-items: end; text-align: right; flex: none; }
 code, .tool { overflow-wrap: anywhere; }
 
@@ -211,7 +241,12 @@ code, .tool { overflow-wrap: anywhere; }
   .project { padding: var(--s-5); }
   .layout { grid-template-columns: var(--panel-w) minmax(0, 1fr); grid-template-areas: 'log main'; align-items: start; }
   .col-log { position: sticky; top: calc(var(--bar-h) + var(--s-4)); }
-  .col-log .log { max-height: calc(100vh - var(--bar-h) - var(--s-6)); overflow: auto; }
+  /* 제목은 고정, 줄 목록만 스크롤 — 처음엔 맨 위(e01)부터, 근거 칩을 누르면 그 줄 머리가 목록 위쪽에 온다 */
+  .col-log .log { max-height: calc(100vh - var(--bar-h) - var(--s-6)); display: flex; flex-direction: column; }
+  .col-log .log-list { overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
   .how { grid-template-columns: repeat(3, 1fr); }
   .hero { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+  .import-row { grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr) minmax(0, 1fr); }
+  .person { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr) auto; align-items: end; }
+  .fund-row { grid-template-columns: auto minmax(0, 1fr); align-items: center; }
 }

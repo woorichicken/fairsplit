@@ -7,8 +7,18 @@ import { createFixtureApi, FIXTURE_NAMES, type FixtureName } from './fixtures';
  */
 export interface FundStart { orderId: string; approveUrl: string }
 
+/** 자기 로그로 새 프로젝트 — 계약서 API 표 `POST /api/projects` */
+export interface NewProjectInput {
+  title: string;
+  clientName: string;
+  budget: string;
+  contributors: { name: string; role: string; paypalEmail: string }[];
+  csv: string;
+}
+
 export interface Api {
   resetDemo(): Promise<Project>;
+  createProject(input: NewProjectInput): Promise<Project>;
   getProject(id: string): Promise<Project>;
   fund(id: string): Promise<FundStart>;
   completeFund(id: string, orderId: string): Promise<Project>;
@@ -19,7 +29,13 @@ export interface Api {
 }
 
 export class ApiError extends Error {
-  constructor(public readonly code: string, message: string, public readonly status: number) {
+  constructor(
+    public readonly code: string,
+    message: string,
+    public readonly status: number,
+    /** 입력 검증 실패면 틀린 곳 전부(몇째 줄·무엇) */
+    public readonly problems: string[] = [],
+  ) {
     super(message);
   }
 }
@@ -37,9 +53,10 @@ async function call<T>(method: 'GET' | 'POST', path: string, body?: unknown): Pr
   } catch {
     throw new ApiError('network', NETWORK_ERROR, 0);
   }
-  const data = (await res.json().catch(() => null)) as { error?: { code?: string; message?: string } } | null;
+  const data = (await res.json().catch(() => null)) as { error?: { code?: string; message?: string; problems?: unknown } } | null;
   if (!res.ok) {
-    throw new ApiError(data?.error?.code ?? `http_${res.status}`, data?.error?.message ?? `The server answered ${res.status}. Try again in a moment.`, res.status);
+    const problems = Array.isArray(data?.error?.problems) ? data.error.problems.map(String) : [];
+    throw new ApiError(data?.error?.code ?? `http_${res.status}`, data?.error?.message ?? `The server answered ${res.status}. Try again in a moment.`, res.status, problems);
   }
   if (data === null) throw new ApiError('bad_json', 'The server sent an empty answer. Try again in a moment.', res.status);
   return data as T;
@@ -49,6 +66,7 @@ const project = (id: string) => `/api/projects/${encodeURIComponent(id)}`;
 
 const httpApi: Api = {
   resetDemo: () => call<Project>('POST', '/api/demo/reset', { scenario: 'brand-short' }),
+  createProject: (input) => call<Project>('POST', '/api/projects', input),
   getProject: (id) => call<Project>('GET', project(id)),
   fund: (id) => call<FundStart>('POST', `${project(id)}/fund`),
   completeFund: (id, orderId) => call<Project>('POST', `${project(id)}/fund/complete`, { orderId }),

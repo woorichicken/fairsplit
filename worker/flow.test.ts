@@ -109,4 +109,16 @@ describe('상태 기계', () => {
     expect(errs).toContain('e99');
     expect(errs).toContain('지난 판');
   });
+
+  it('배치가 SUCCESS 여도 UNCLAIMED 항목이 있으면 「모두 받았다」고 쓰지 않는다', () => {
+    const p = funded();
+    applyProposal(p, ruleProposal(p, 1, NOW), NOW);
+    for (const c of p.contributors) approve(p, c.id, NOW);
+    markCaptured(p, 'C1', NOW);
+    const items = p.proposal!.shares.map((s) => ({ contributorId: s.contributorId, amount: s.amount, status: 'PENDING' }));
+    markPaying(p, 'B1', 'PENDING', items, NOW);
+    updatePayout(p, 'SUCCESS', items.map((i, k) => ({ ...i, status: k === 0 ? 'SUCCESS' : 'UNCLAIMED' })), NOW);
+    expect(p.status).toBe('paid');
+    expect(p.events.at(-1)!.text).toBe('PayPal finished the payout batch. 2 of 3 payouts are waiting for the receiver to claim them.');
+  });
 });

@@ -8,6 +8,9 @@ import { Activity, Avatar, LogPanel, Receipt, SplitCard, StatusBadge, Stepper, T
 // Payouts 는 PENDING 으로 시작해 몇 초~몇 분 뒤 끝난다(12:30 실측) — 그동안 이 간격으로 refresh 한다
 const PAYOUT_POLL_MS = 2000;
 const DISPUTE_MAX = 500;
+// 「AI 가 근거 없는 이의는 받아 주지 않는다」를 보여 주는 예시(시연 데이터의 Jun 만) — 결과는 실제 AI 가 정한다
+const WEAK_DISPUTE_ID = 'jun';
+const WEAK_DISPUTE_TEXT = 'I should get 70% because editing is the hardest part.';
 // 서버는 20초에 규칙 제안으로 넘어간다(계약서) — 15초가 지나면 「오래 걸린다」를 미리 말해 둔다
 const SLOW_AI_MS = 15_000;
 
@@ -164,6 +167,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
   const needsFunding = !project.order?.authorizationId && !moneyMoving;
   // 오류는 누른 버튼 가까이에 — 폰에서 화면 맨 위 알림은 안 보인다
   const showDecide = canDecide && !!viewer && !thinking;
+  const weakDisputer = project.contributors.find((c) => c.id === WEAK_DISPUTE_ID);
   const n = project.log.length;
 
   return (
@@ -212,13 +216,18 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                   <span className="badge status-draft">Not funded yet</span>
                 </div>
                 <p className="small muted">
-                  {formatMoney(project.budget)} is authorized on PayPal and captured only after every contributor approves. The AI can propose
-                  before that — the payment is needed for the last approval.
+                  {formatMoney(project.budget)} is authorized on PayPal now. PayPal holds an authorization for up to 29 days (3-day honor period);
+                  FairSplit captures only after everyone agrees. If agreement takes longer than that, the client authorizes again. The AI can propose
+                  before funding — the payment is needed for the last approval.
                 </p>
-                <div className="row">
+                <div className="fund-row">
                   <button type="button" className="btn" onClick={fund} disabled={busy !== null}>
                     {busy === 'fund' ? 'Opening PayPal…' : 'Fund with PayPal (sandbox)'}
                   </button>
+                  <p className="small sandbox-hint">
+                    Sandbox: choose <b>Pay with debit or credit card</b>, country <b>United States</b>, card <code className="tool">4005 5192 0000 0004</code>, any future
+                    expiry, any CVV.
+                  </p>
                 </div>
               </section>
             )}
@@ -275,6 +284,19 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                     : `Waiting for ${waitingFor.map((c) => c.name).join(', ')}. PayPal sends money only when all ${project.contributors.length} approve. Switch “Viewing as” to act for someone else (demo only).`}
                 </p>
 
+                {weakDisputer && (
+                  <button
+                    type="button"
+                    className="btn btn-quiet try-weak"
+                    onClick={() => {
+                      setViewerId(weakDisputer.id);
+                      setDisputeText(WEAK_DISPUTE_TEXT);
+                    }}
+                    disabled={busy !== null}
+                  >
+                    Try a weak dispute (as {weakDisputer.name}) — does the AI give in?
+                  </button>
+                )}
                 <form
                   className="dispute"
                   onSubmit={(e) => {
@@ -315,6 +337,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                     <li key={d.id} className="small">
                       <strong>{project.contributors.find((c) => c.id === d.contributorId)?.name ?? d.contributorId}:</strong> “{d.text}”
                       {d.answeredInVersion ? <span className="muted"> — answered in v{d.answeredInVersion}</span> : <span className="muted"> — open</span>}
+                      {d.answer && <p className="dispute-answer">AI: {d.answer}</p>}
                     </li>
                   ))}
                 </ul>

@@ -127,7 +127,9 @@ export function updatePayout(p: Project, status: string, items: PayoutItem[], at
   p.payout = { ...p.payout, status, items: items.length ? items : p.payout.items };
   if (status === BATCH_DONE && p.status === 'paying') {
     p.status = 'paid';
-    log(p, at, 'PayPal finished the payout batch. Everyone has been paid.');
+    // UNCLAIMED = 받는 사람이 아직 PayPal 계정이 없어 청구 링크 메일로 기다리는 중 — 「모두 받았다」고 쓰지 않는다
+    const waiting = p.payout.items.filter((i) => i.status.toUpperCase() === 'UNCLAIMED').length;
+    log(p, at, waiting ? `PayPal finished the payout batch. ${waiting} of ${p.payout.items.length} payouts are waiting for the receiver to claim them.` : 'PayPal finished the payout batch. Everyone has been paid.');
   } else if (changed) log(p, at, `Payout batch is ${status}.`);
 }
 

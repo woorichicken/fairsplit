@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ApiError, fixtureFromUrl, getApi } from './api';
-import type { Navigate } from './App';
+import { NEW_PATH, type Navigate } from './App';
 import { fixtureProject } from './fixtures';
 import { previousProposal, SplitCard, TopBar } from './parts';
 
@@ -54,8 +54,11 @@ export function Landing({ navigate }: { navigate: Navigate }) {
               <button type="button" className="btn btn-primary btn-lg" onClick={start} disabled={busy}>
                 {busy ? 'Setting up the demo…' : 'Try the demo'}
               </button>
-              <p className="muted small">Sandbox demo — no real money moves.</p>
+              <button type="button" className="btn btn-lg" onClick={() => navigate(`${NEW_PATH}${window.location.search}`)}>
+                Use your own log
+              </button>
             </div>
+            <p className="muted small">Sandbox demo — no real money moves.</p>
             {error && (
               <p role="alert" className="alert">
                 {error}
