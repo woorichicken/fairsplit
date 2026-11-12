@@ -82,7 +82,7 @@
   --m-dark: #0a0a0c;          /* [레퍼런스] Distribute paycheck · Wallet 검은 면 */
   --m-dark-2: #1c1c1f;        /* [레퍼런스] Wallet Apple Cash 패스 면 */
   --on-dark-2: rgba(255, 255, 255, 0.68); /* [결정] 검은 면 위 보조 글자(대비 9+) */
-  --m-face-h: 88px;          /* [레퍼런스] Cash App Money — 시트 위로 보이는 색 면 높이(fix1) */
+  --m-face-h: 72px;          /* [레퍼런스] Cash App Money — 시트 위로 보이는 색 면(제목 줄) 높이. fix2: 빈 카드를 빼고 제목만 → 72 */
   --r-card-m: 24px;           /* [레퍼런스] Cash App 흰 카드 모서리(Savings·Pools) */
   --r-sheet: 32px;            /* [레퍼런스] Cash App Money 흰 시트 · 고리 화면 위 모서리 */
   --r-pass: 14px;             /* [레퍼런스] Wallet 패스 모서리 */
@@ -96,9 +96,10 @@
   --t-pass-name: 700 22px/26px var(--font);             /* [레퍼런스] Wallet 패스 왼쪽 이름(DUNKIN' · DELTA) */
   --t-pass-label: 600 11px/14px var(--font);            /* [레퍼런스] Wallet 패스 오른쪽 위 BALANCE · MEMBER # */
   --cta-h: 56px;              /* [레퍼런스] Cash App 「Download Cash App」 알약 높이 */
-  --ring-1: #7aa5ff;          /* [결정] Distribute 고리 초록 3단을 우리 파랑 3단으로 — 검은 면 위 대비 순서대로 */
-  --ring-2: #3d6df2;
-  --ring-3: #2546b8;
+  --ring-1: #6f9bff;          /* [결정] 고리 구간·목록 점 = 사람별 색. fix2(r4 심사): 파랑 3단은 구간이 안 갈려 보였다 → 색상 셋(파랑·청록·분홍).
+                                 Wallet 패스 3색(--pass-*)과 같은 계열을 검은 면 위에서 밝게 */
+  --ring-2: #2fbf9f;
+  --ring-3: #ef6f98;
   --pass-1: #1d4ed8;          /* [결정] Wallet 패스 면 3색 — 주색 · 짙은 청록 · 진홍(Delta 패스 계열). 흰 글자 대비 5+ */
   --pass-2: #0e6655;
   --pass-3: #9d1f4f;

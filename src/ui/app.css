@@ -282,6 +282,18 @@ code, .tool { overflow-wrap: anywhere; }
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 12h15m-6-7 7 7-7 7' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
   }
   .money-cta:hover:not(:disabled), .hero-cta .btn-primary:hover:not(:disabled) { background: var(--m-dark-2); }
+  /* fix2(r4 심사): 고정 버튼이 설명 문단을 문장 중간에서 잘랐다 → 버튼 뒤에 바탕색 면을 깔아 글이 위에서 흐려지며 끝나게(앱 하단 바).
+     버튼이 있는 화면에서만 · 누름은 통과 · 스크롤 끝 여백은 .project padding-bottom 이 맡는다 */
+  .page:has(.money-cta)::after, .page:has(.landing)::after {
+    content: ''; position: fixed; z-index: 2; left: 0; right: 0; bottom: 0; pointer-events: none;
+    height: calc(var(--cta-h) + var(--s-6) * 2 + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(to bottom, transparent, var(--m-canvas) 45%);
+  }
+  /* 랜딩은 버튼 뒤가 파란 면이었다가 회색 바탕이 된다 — 한 색으로 덮지 않고 흐리게(iOS 하단 바) */
+  .page:has(.landing)::after {
+    background: transparent; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    mask-image: linear-gradient(to bottom, transparent, black 45%);
+  }
 
   /* ── M-1 랜딩 = Cash App 랜딩: 가장자리까지 꽉 찬 색 면 · 큰 제목 · 폰 안 흰 카드 쌓기 · 아래 고정 알약 ── */
   .page:has(.landing) .topbar { background: var(--accent); }
@@ -295,30 +307,32 @@ code, .tool { overflow-wrap: anywhere; }
   }
   .hero-copy .eyebrow { order: 0; color: var(--on-brand-2); }
   .landing-title { order: 1; font: var(--t-cash-hero); letter-spacing: -0.035em; color: var(--on-accent); }
-  .hero-copy .landing-lead { order: 2; color: var(--on-accent); font: var(--t-subtitle); }
-  .hero-cta { order: 3; width: 100%; }
-  .hero-copy > .muted { order: 4; color: var(--on-brand-2); }
-  .hero-copy > .alert { order: 5; }
-  .hero-shares { order: 6; }
+  /* fix2(r4 심사): 카드 묶음이 설명·버튼 아래(630px~)에 있어 고정 「Try the demo」가 Mina $192.00 을 가렸다 →
+     제목 바로 아래로 올려 세 장이 첫 화면 버튼 위에서 끝나게 한다 */
+  .hero-shares { order: 2; }
+  .hero-copy .landing-lead { order: 3; color: var(--on-accent); font: var(--t-subtitle); }
+  .hero-cta { order: 4; width: 100%; }
+  .hero-copy > .muted { order: 5; color: var(--on-brand-2); padding-bottom: var(--s-5); }
+  .hero-copy > .alert { order: 6; }
   .hero-cta .btn:not(.btn-primary) { width: 100%; min-height: var(--cta-h); border-radius: var(--r-pill); background: transparent; border: 1.5px solid var(--on-accent); color: var(--on-accent); }
   /* 폰 모양 틀 — Cash App 은 색 면 아래쪽에 앱 화면(흰 둥근 위 모서리 · 회색 바탕 · 흰 카드)을 반쯤 걸쳐 보여 준다 */
   .hero-shares {
-    display: grid; gap: var(--s-3); margin: 0 var(--s-3); padding: var(--s-5) var(--s-3) var(--s-4);
-    border-radius: var(--r-sheet) var(--r-sheet) 0 0; background: var(--m-canvas); color: var(--ink);
+    display: grid; gap: var(--s-2); margin: 0; padding: var(--s-4) var(--s-3) var(--s-3);
+    border-radius: var(--r-sheet); background: var(--m-canvas); color: var(--ink); box-shadow: var(--m-shadow-lift);
   }
   .hero-shares .money-kicker { font: var(--t-small); font-weight: 500; color: var(--ink-2); padding: 0 var(--s-2); }
   .hero-shares .money-kicker::after { content: none; }
-  .hero-shares .money-shares { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
+  .hero-shares .money-shares { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
   .hero-shares .money-share {
     display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'name pct' 'amt pct';
-    align-items: center; gap: var(--s-1) var(--s-3); padding: var(--s-4) var(--s-5); border-radius: var(--r-card-m);
+    align-items: center; gap: 2px var(--s-3); padding: var(--s-3) var(--s-4); border-radius: var(--r-card-m);
     background: var(--surface); box-shadow: var(--m-shadow-card);
   }
   .hero-shares .money-name { grid-area: name; font: var(--t-body); font-weight: 500; color: var(--ink); }
   .hero-shares .money-amt { grid-area: amt; font: var(--t-card-amount); letter-spacing: -0.02em; color: var(--ink); font-variant-numeric: tabular-nums; }
   /* 오른쪽 둥근 표시 — Savings 카드의 ($) 고리 자리에 몫 % */
   .hero-shares .money-pct {
-    grid-area: pct; display: grid; place-items: center; width: 64px; height: 64px; border-radius: var(--r-pill);
+    grid-area: pct; display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--r-pill);
     border: 3px solid var(--accent); color: var(--accent); font: var(--t-body); font-weight: 700; font-variant-numeric: tabular-nums;
   }
   .hero-preview .card { box-shadow: var(--m-shadow-card); }
@@ -345,23 +359,21 @@ code, .tool { overflow-wrap: anywhere; }
   .money-shares { list-style: none; margin: 0; padding: 0; display: grid; }
   .money-pct, .money-amt, .money-total { font-variant-numeric: tabular-nums; }
 
-  /* M-2 결제 전 = Cash App Money: 위는 브랜드 색 면(카드 한 장이 넣어져 있다) · 그 위로 올라온 흰 시트에 「라벨 ›」 + 초대형 잔액.
-     fix1: 시트 밖에 잘린 파란 띠가 붙어 「잘린 것」처럼 보였다 → 색 면을 칸 안 위쪽에 충분히(88px) 깔고 시트를 그 위로 올린다.
-     isolation 으로 ::before(카드)·::after(시트)가 칸의 색 배경 「위」, 글자 「아래」에 그려진다 */
+  /* M-2 결제 전 = Cash App Money: 위 브랜드 색 면에 화면 제목(「Money」 자리 = 상태 이름 ›) · 그 아래로 올라온 흰 시트에 초대형 잔액.
+     fix2(r4 심사): 색 면 안 빈 반투명 사각형이 「빠진 이미지」로 보였다 → 지우고 그 자리에 상태 이름을 흰 글자로 올렸다.
+     흰 시트(::after, z 0)는 칸 색 배경 위에, 글자(자식 z 1)는 시트 위에. isolation 은 쓰지 않는다 — 쓰면 칸 안의 고정 버튼(.money-cta)이
+     칸 층에 갇혀 화면 아래 흐림 면(z 2) 밑으로 깔린다(fix2 첫 캡처에서 버튼이 사라졌다) */
+  .money-hero > :not(.money-cta) { position: relative; z-index: 1; }
   .money-hero {
-    isolation: isolate; overflow: hidden; margin-top: 0; padding: calc(var(--m-face-h) + var(--s-5)) var(--s-5) var(--s-6);
+    overflow: hidden; margin-top: 0; padding: 0 var(--s-5) var(--s-6);
     border-radius: var(--r-sheet); background: var(--brand-face); color: var(--ink); box-shadow: var(--m-shadow-card);
   }
-  .money-hero::before {
-    content: ''; position: absolute; z-index: -1; top: var(--s-5); left: var(--s-5); right: var(--s-5); height: var(--m-face-h);
-    border-radius: var(--r-pass); background: var(--on-brand-line); border: 1px solid var(--on-brand-line);
-  }
   .money-hero::after {
-    content: ''; position: absolute; z-index: -1; inset: var(--m-face-h) 0 0 0;
+    content: ''; position: absolute; z-index: 0; inset: var(--m-face-h) 0 0 0;
     border-radius: var(--r-sheet) var(--r-sheet) 0 0; background: var(--surface);
   }
-  .money-kicker { font: var(--t-body); font-weight: 500; color: var(--ink); }
-  .money-kicker::after { content: ' ›'; color: var(--ink-3); }
+  .money-kicker { display: flex; align-items: center; min-height: var(--m-face-h); margin-bottom: var(--s-3); font: var(--t-largetitle); font-size: 22px; color: var(--on-accent); }
+  .money-kicker::after { content: '›'; margin-left: var(--s-2); color: var(--on-brand-2); }
   .money-total { font: var(--t-balance); letter-spacing: -0.035em; margin: var(--s-1) 0 var(--s-2); }
   .money-line { font: var(--t-small); color: var(--ink-2); }
 
@@ -369,12 +381,12 @@ code, .tool { overflow-wrap: anywhere; }
   .money-hero-proposed, .money-hero-disputed {
     padding: var(--s-5) var(--s-4) var(--s-4); background: var(--m-dark); color: var(--on-accent); box-shadow: var(--m-shadow-lift);
   }
-  .money-hero-proposed::before, .money-hero-disputed::before, .money-hero-proposed::after, .money-hero-disputed::after { content: none; }
-  .money-hero-proposed .money-kicker, .money-hero-disputed .money-kicker { font: var(--t-largetitle); font-size: 24px; color: var(--on-accent); }
+  .money-hero-proposed::after, .money-hero-disputed::after { content: none; }
+  .money-hero-proposed .money-kicker, .money-hero-disputed .money-kicker { display: block; min-height: 0; margin: 0; font: var(--t-largetitle); font-size: 24px; color: var(--on-accent); }
   .money-hero-proposed .money-kicker::after, .money-hero-disputed .money-kicker::after { content: none; }
   .money-hero-proposed .money-total, .money-hero-disputed .money-total {
-    position: relative; justify-self: center; display: grid; place-items: center; width: 232px; height: 232px; margin: var(--s-4) 0;
-    font: var(--t-card-amount); font-size: 40px; letter-spacing: -0.03em;
+    position: relative; justify-self: center; display: grid; place-items: center; width: 184px; height: 184px; margin: var(--s-3) 0 var(--s-2);
+    font: var(--t-card-amount); letter-spacing: -0.03em;
   }
   .money-hero-proposed .money-total::before, .money-hero-disputed .money-total::before {
     content: ''; position: absolute; inset: 0; border-radius: var(--r-pill);
@@ -383,15 +395,15 @@ code, .tool { overflow-wrap: anywhere; }
       var(--ring-2) 0 calc(var(--p2) - 1.2%), transparent 0 var(--p2),
       var(--ring-3) 0 98.8%, transparent 0
     );
-    mask: radial-gradient(farthest-side, transparent calc(100% - 9px), black calc(100% - 8px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 13px), black calc(100% - 12px));
   }
   .money-hero-proposed .money-line, .money-hero-disputed .money-line { color: var(--on-dark-2); text-align: center; padding: 0 var(--s-2); }
-  .money-hero-proposed .money-shares, .money-hero-disputed .money-shares { margin-top: var(--s-4); border-top: 1px solid var(--on-brand-line); }
+  .money-hero-proposed .money-shares, .money-hero-disputed .money-shares { margin-top: var(--s-2); border-top: 1px solid var(--on-brand-line); }
   .money-hero-proposed .money-share, .money-hero-disputed .money-share {
-    display: grid; grid-template-columns: 10px minmax(0, 1fr) auto auto; align-items: center; gap: var(--s-3);
-    min-height: 52px; border-bottom: 1px solid var(--on-brand-line);
+    display: grid; grid-template-columns: 12px minmax(0, 1fr) auto auto; align-items: center; gap: var(--s-3);
+    min-height: 44px; border-bottom: 1px solid var(--on-brand-line);
   }
-  .money-hero-proposed .money-share::before, .money-hero-disputed .money-share::before { content: ''; width: 10px; height: 10px; border-radius: var(--r-pill); background: var(--ring-1); }
+  .money-hero-proposed .money-share::before, .money-hero-disputed .money-share::before { content: ''; width: 12px; height: 12px; border-radius: var(--r-pill); background: var(--ring-1); }
   .money-hero-proposed .money-share:nth-child(2)::before, .money-hero-disputed .money-share:nth-child(2)::before { background: var(--ring-2); }
   .money-hero-proposed .money-share:nth-child(3)::before, .money-hero-disputed .money-share:nth-child(3)::before { background: var(--ring-3); }
   .money-hero-proposed .money-name, .money-hero-disputed .money-name { font: var(--t-body); font-weight: 500; }
@@ -400,8 +412,8 @@ code, .tool { overflow-wrap: anywhere; }
 
   /* M-4 지급 = Apple Wallet: 검은 면 · large title · 겹쳐 쌓인 패스(위 띠만 보이고 맨 아래 장은 다) */
   .money-hero-paid { overflow: visible; padding: var(--s-5) var(--s-4) var(--s-4); background: var(--m-dark); color: var(--on-accent); box-shadow: var(--m-shadow-lift); }
-  .money-hero-paid::before, .money-hero-paid::after { content: none; }
-  .money-hero-paid .money-kicker { font: var(--t-largetitle); color: var(--on-accent); }
+  .money-hero-paid::after { content: none; }
+  .money-hero-paid .money-kicker { display: block; min-height: 0; margin: 0; font: var(--t-largetitle); color: var(--on-accent); }
   .money-hero-paid .money-kicker::before { content: '✓ '; color: var(--state-paid-dot); }
   .money-hero-paid .money-kicker::after { content: none; }
   /* 첫 패스 = Apple Cash 패스 자리: 짙은 회색 면 · 오른쪽 큰 금액 */
