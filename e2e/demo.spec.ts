@@ -221,3 +221,13 @@ test('fund step tells the honor period and the sandbox test card', async ({ page
   await expect(page.getByText('4005 5192 0000 0004')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Fund with PayPal (sandbox)' })).toBeVisible();
 });
+
+// r2 사용자 시험 「막힘」: 빠진 작업의 시간 칸을 비우면 버튼이 무반응이었다(콘솔 Invalid time value) — 이제 말로 알리고 요청은 안 나간다
+test('missing work without a time explains what to add instead of doing nothing', async ({ page }) => {
+  await page.goto('/p/sample?fixture=v1');
+  await page.getByRole('button', { name: 'Try adding missing work (as Sora)' }).click();
+  await page.getByLabel('Missing work time').fill('');
+  await page.getByRole('button', { name: 'Send dispute' }).click();
+  await expect(page.getByRole('alert')).toContainText('Add when the missing work happened');
+  await expect(page.getByText(/Words alone can’t change a share/)).toBeVisible();
+});

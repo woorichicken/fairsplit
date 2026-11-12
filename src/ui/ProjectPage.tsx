@@ -141,15 +141,16 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
     const text = disputeText.trim();
     if (!text || !viewerId) return;
     setHighlight([]);
+    // 시간 칸이 비면 toISOString 이 RangeError 로 죽어 버튼이 무반응이 된다(r2 사용자 시험) — 만들기 전에 먼저 막고 말로 알린다
+    if (missing.open && missing.title.trim() && Number.isNaN(new Date(missing.at).getTime())) {
+      setActionError(new ApiError('BAD_MISSING_WORK', 'Add when the missing work happened (date and time), then send again.', 400));
+      return;
+    }
     // 빠진 작업은 칸을 열고 제목을 쓴 경우에만 보낸다 — 검증(종류·시간·분)은 서버가 한다
     const work: MissingWork | undefined =
       missing.open && missing.title.trim()
         ? { kind: missing.kind, title: missing.title.trim(), at: new Date(missing.at).toISOString(), ...(missing.minutes ? { minutes: Number(missing.minutes) } : {}) }
         : undefined;
-    if (missing.open && missing.title.trim() && Number.isNaN(new Date(missing.at).getTime())) {
-      setActionError(new ApiError('BAD_MISSING_WORK', 'Missing work needs a date and time.', 400));
-      return;
-    }
     if (await act('dispute', () => api.dispute(id, viewerId, text, work))) {
       setDisputeText('');
       setMissing(EMPTY_MISSING);
@@ -408,6 +409,10 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                     onChange={(e) => setDisputeText(e.target.value)}
                     placeholder="e.g. My two re-recordings weren't counted."
                   />
+                  {/* 말만 하면 AI 는 로그에 없는 일을 셀 수 없다 — 보내기 전에 알린다(이의는 판마다 1번이라 뒤에 알면 늦다, r2 사용자 시험) */}
+                  <p className="small muted">
+                    Words alone can’t change a share: the AI only counts work it can find in the log. If work is missing, add it below. You get one dispute per version.
+                  </p>
                   <details className="missing" open={missing.open} onToggle={(e) => setMissing((m) => ({ ...m, open: (e.target as HTMLDetailsElement).open }))}>
                     <summary className="small">Add missing work (optional)</summary>
                     <p className="small muted">
