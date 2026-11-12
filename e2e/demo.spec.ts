@@ -218,7 +218,7 @@ test('real paid project: no Sample badge, PayPal IDs and unclaimed explained', a
 test('fund step tells the honor period and the sandbox test card', async ({ page }) => {
   await page.goto('/p/sample?fixture=draft');
   await expect(page.getByText(/up to 29 days \(3-day honor period\)/)).toBeVisible();
-  await expect(page.getByText('4005 5192 0000 0004')).toBeVisible();
+  await expect(page.getByText('4032 0393 6134 9402')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Fund with PayPal (sandbox)' })).toBeVisible();
 });
 

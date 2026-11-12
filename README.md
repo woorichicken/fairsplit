@@ -45,7 +45,7 @@ rule-based proposal (labelled **Rule-based fallback**) keeps the flow working.
 1. Open the live demo → **Try the demo** → **Fund with PayPal (sandbox)**.
 2. On the PayPal sandbox page choose **Pay with debit or credit card**.
 3. Set the country to **United States** (the demo merchant is a Korean sandbox account, and PayPal does not allow KR→KR payments).
-4. Card **4005 5192 0000 0004** (an official PayPal sandbox test Visa), any future expiry, any 3-digit CVV, any US address. Turn off "create account".
+4. Card **4032 0393 6134 9402**, expiry **06/2028**, CVV **427** (a Visa from PayPal's sandbox card generator), any US address. Turn off "create account". If PayPal ever declines it, generate a fresh Visa at https://developer.paypal.com/tools/sandbox/card-testing/ — the static test card 4005 5192 0000 0004 started returning INSTRUMENT_DECLINED on Nov 12.
 5. You come back to FairSplit with the job **Funded**. Ask the AI to propose, dispute as one contributor, approve as all three, and watch PayPal send the Payouts batch.
 
 No account or login is needed.

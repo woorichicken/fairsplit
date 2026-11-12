@@ -286,8 +286,8 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                     {busy === 'fund' ? 'Opening PayPal…' : 'Fund with PayPal (sandbox)'}
                   </button>
                   <p className="small sandbox-hint">
-                    Sandbox: choose <b>Pay with debit or credit card</b>, country <b>United States</b>, card <code className="tool">4005 5192 0000 0004</code>, any future
-                    expiry, any CVV.
+                    Sandbox: choose <b>Pay with debit or credit card</b>, country <b>United States</b>, card <code className="tool">4032 0393 6134 9402</code>, expiry <code className="tool">06/2028</code>, CVV
+                    <code className="tool">427</code>, any US address.
                   </p>
                 </div>
               </section>
