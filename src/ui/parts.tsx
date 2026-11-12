@@ -27,9 +27,11 @@ export function Stepper({ project }: { project: Project }) {
     <ol className={`stepper${project.status === 'paid' ? ' is-paid' : ''}`} aria-label="Progress">
       {STEPS.map((label, i) => {
         const isDone = i === 0 ? funded : i < done;
-        const state = isDone ? 'done' : i === done || (i === 0 && !funded) ? 'current' : 'todo';
+        // 결제 전에 제안이 먼저 나온 경우(계약서상 허용) 「Funded」는 현재 단계가 아니라 「아직 안 됨」 — 현재 표시가 둘이 되지 않게(r6 심사)
+        const fundingPending = i === 0 && !funded && done >= 1;
+        const state = isDone ? 'done' : fundingPending ? 'pending' : i === done || (i === 0 && !funded) ? 'current' : 'todo';
         return (
-          <li key={label} className={`step step-${state}`} aria-current={state === 'current' ? 'step' : undefined}>
+          <li key={label} className={`step step-${state}`} aria-current={state === 'current' ? 'step' : undefined} title={state === 'pending' ? 'Not funded yet' : undefined}>
             <span className="step-dot" aria-hidden="true">
               {state === 'done' ? '✓' : i + 1}
             </span>

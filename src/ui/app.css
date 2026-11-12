@@ -126,6 +126,8 @@ h1, h2, p { margin: 0; }
 .stepper.is-paid .step { background: var(--state-paid-bg); border-color: var(--state-paid-bg); }
 .stepper.is-paid .step-dot { background: var(--state-paid-dot); border-color: var(--state-paid-dot); color: var(--ink); }
 .step-todo .step-label { color: var(--ink-2); }
+.step-pending .step-dot { border-style: dashed; border-color: var(--rule-line); color: var(--ink-2); background: transparent; }
+.step-pending .step-label { color: var(--ink-2); }
 
 .layout { display: grid; gap: var(--s-4); grid-template-columns: minmax(0, 1fr); grid-template-areas: 'main' 'log'; }
 .col-main { grid-area: main; display: grid; gap: var(--s-4); align-content: start; min-width: 0; }
