@@ -23,7 +23,8 @@ const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 
 const V1 = recordedV1 as unknown as Project;
 const V2 = recordedV2 as unknown as Project;
-// 「약한 이의」 실측(s2r3-weak-dispute.json) — Jun 의 70% 요구에 AI 가 답한 그대로. 그 실행의 v1·v2 를 통째로 쓴다(숫자를 섞지 않는다)
+// 「약한 이의」 실측(s2r4-weak-project.json, 4회차 규칙) — Jun 의 70% 요구에 AI 가 「No change」로 답한 그대로. 그 실행의 v1·v2 를 통째로 쓴다(숫자를 섞지 않는다).
+// 참고: recorded-v2(Sora 19→23)는 4회차 규칙 전 프롬프트로 받은 응답이다 — 지금 서버는 같은 이의에 몫을 바꾸지 않을 수 있다(s2r4-disputes.json).
 const WEAK = recordedWeak as unknown as Project;
 const WEAK_DISPUTER = WEAK.disputes[0].contributorId;
 const SAMPLE_ORDER = { id: 'SAMPLE-ORDER-1', status: 'COMPLETED', authorizationId: 'SAMPLE-AUTH-1' };
@@ -99,6 +100,11 @@ export function fixtureProject(name: FixtureName): Project {
   if (name === 'v1') return withV1(funded(draft));
   if (name === 'v2') return withV2(withV1(funded(draft)));
   return withPaid(withV2(withV1(funded(draft))));
+}
+
+/** 「약한 이의」 실측 프로젝트 그대로(4회차 규칙, 로컬 wrangler + 실제 Claude) — 첫 화면 미리보기용 */
+export function recordedWeakProject(): Project {
+  return { ...clone(WEAK), id: FIXTURE_ID };
 }
 
 /** 메모리 안에서 서버 흐름을 흉내 낸다 — 이의 → v2, 전원 동의 → paying → paid. 같은 탭 안에서만 유지된다. */

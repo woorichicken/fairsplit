@@ -55,6 +55,52 @@ describe('submit 검증 (AI 없이)', () => {
     expect(validateSubmission(p, good).ok).toBe(false);
     expect(validateSubmission(p, { ...good, changedBecause: 'Found e10 and e12.' }).ok).toBe(true);
   });
+
+  // 4회차: 근거 없는 이의로 몫이 오르지 않게
+  const disputed = (who: string, text: string) => {
+    const p = project();
+    applyProposal(p, ruleProposal(p, 1, NOW), NOW);
+    openDispute(p, who, text, 'd1', NOW);
+    return p;
+  };
+  const sameAsV1 = (p: ReturnType<typeof project>) => ({
+    summary: 'Same split.',
+    shares: p.proposal!.shares.map((s) => ({ contributorId: s.contributorId, percent: s.percent, reasons: s.reasons })),
+  });
+  const bump = (p: ReturnType<typeof project>, up: string, down: string, pts: number) =>
+    sameAsV1(p).shares.map((s) => (s.contributorId === up ? { ...s, percent: s.percent + pts } : s.contributorId === down ? { ...s, percent: s.percent - pts } : s));
+
+  it('몫이 오른 사람의 로그 줄을 changedBecause 가 짚지 않으면 도구 오류로 돌려준다', () => {
+    const p = disputed('jun', 'I should get 70% because editing is the hardest part.');
+    const v = validateSubmission(p, { ...sameAsV1(p), shares: bump(p, 'jun', 'mina', 2), changedBecause: 'Editing matters, so a small lift.' });
+    expect(v.ok).toBe(false);
+    if (!v.ok) {
+      expect(v.error).toContain("Jun's share went up");
+      expect(v.error).toContain('e07');
+      expect(v.error).toContain('No change:');
+    }
+  });
+
+  it('남의 줄만 짚어도 안 된다 — 오른 사람 자신의 줄이어야', () => {
+    const p = disputed('jun', 'I should get more.');
+    const v = validateSubmission(p, { ...sameAsV1(p), shares: bump(p, 'jun', 'mina', 2), changedBecause: 'Mina wrote e02 and e04.' });
+    expect(v.ok).toBe(false);
+  });
+
+  it('근거 줄을 짚으면 오를 수 있다(강한 이의)', () => {
+    const p = disputed('sora', "My two re-recordings weren't counted.");
+    const v = validateSubmission(p, { ...sameAsV1(p), shares: bump(p, 'sora', 'jun', 4), changedBecause: 'e10 and e12 were client-requested re-dos the rule under-weighted.' });
+    expect(v.ok).toBe(true);
+  });
+
+  it('몫이 그대로면 통과하고 답 앞에 「No change:」 가 붙는다', () => {
+    const p = disputed('jun', 'I should get 70% because editing is the hardest part.');
+    const v = validateSubmission(p, { ...sameAsV1(p), changedBecause: 'The log already counts all of Jun’s edit rounds (e07, e09, e11, e13).' });
+    expect(v.ok).toBe(true);
+    if (v.ok) expect(v.changedBecause).toBe('No change: The log already counts all of Jun’s edit rounds (e07, e09, e11, e13).');
+    const w = validateSubmission(p, { ...sameAsV1(p), changedBecause: 'No change: nothing new in the log.' });
+    if (w.ok) expect(w.changedBecause).toBe('No change: nothing new in the log.');
+  });
 });
 
 describe('규칙 제안', () => {

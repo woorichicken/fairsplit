@@ -163,8 +163,9 @@ export function SplitCard({
       {!compact && prev && proposal.changedBecause && (
         <div className="changed" role="note" aria-label={splitMoved ? `What changed from v${prev.version}` : `AI answer to ${disputerName ?? 'the dispute'}`}>
           <strong className="changed-title">
-            {splitMoved ? `What changed from v${prev.version} → v${version}` : `AI answer to ${disputerName ?? 'the'}’s dispute — split unchanged`}
+            {splitMoved ? `What changed from v${prev.version} → v${version}` : `AI answer to ${disputerName ?? 'the'}’s dispute`}
           </strong>
+          {!splitMoved && <span className="badge badge-rule no-change">No change — the log doesn’t support this claim</span>}
           {answered && (
             <p className="small muted">
               {disputerName}: “{answered.text}”

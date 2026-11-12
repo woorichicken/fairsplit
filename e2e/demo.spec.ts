@@ -64,7 +64,7 @@ test('Landing shows a real split card and Try the demo opens the project', async
   const preview = page.getByRole('region', { name: 'Example split' });
   await expect(preview).toContainText('AI proposal');
   await expect(preview).toContainText('Recorded example');
-  await expect(preview).toContainText(`${sharePct(V1, 'sora')}% → ${sharePct(V2, 'sora')}%`);
+  await expect(page.getByText(/A recorded AI answer: Jun disputed .* kept every share\./)).toBeVisible();
   await page.getByRole('button', { name: 'Try the demo' }).click();
   await expect(page).toHaveURL(/\/p\/sample\?fixture=v1$/);
   await expect(page.getByTestId('share-mina')).toBeVisible();
@@ -176,9 +176,12 @@ test('weak dispute: the AI answer is shown next to the split', async ({ page }) 
   await expect(page.getByLabel('Viewing as')).toHaveValue('jun');
   await expect(page.getByLabel(/Something missing\? Tell the AI/)).toHaveValue('I should get 70% because editing is the hardest part.');
   await page.getByRole('button', { name: 'Send dispute' }).click();
-  const note = page.getByRole('note');
+  const note = page.getByRole('note', { name: 'AI answer to Jun' });
   await expect(note).toContainText('Jun: “I should get 70% because editing is the hardest part.”');
-  await expect(note).toContainText('not 70%');
+  await expect(note).toContainText('No change — the log doesn’t support this claim');
+  await expect(note).toContainText('No change:');
+  // 몫은 v1 그대로 — 화살표가 없다
+  await expect(page.locator('.delta-up, .delta-down')).toHaveCount(0);
   await expect(page.locator('.dispute-answer')).toContainText('AI:');
 });
 

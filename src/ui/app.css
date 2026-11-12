@@ -142,6 +142,7 @@ h1, h2, p { margin: 0; }
 /* Split */
 .split-total { margin-bottom: var(--s-2); }
 .changed { margin: var(--s-3) 0; padding: var(--s-3) var(--s-4); border-radius: var(--r-m); background: var(--ai-bg); border: 1px solid var(--ai-line); display: grid; gap: var(--s-1); }
+.no-change { justify-self: start; white-space: normal; }
 .changed-title { font: var(--t-subtitle); font-weight: 500; color: var(--ai-ink); }
 .shares { list-style: none; margin: var(--s-3) 0 0; padding: 0; display: grid; gap: var(--s-3); }
 .share { padding: var(--s-3); border: 1px solid var(--hair); border-radius: var(--r-m); display: grid; gap: var(--s-2); }
