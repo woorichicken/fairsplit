@@ -5,8 +5,8 @@ import { formatMoney, formatTime, initials, KIND_LABEL, payoutStatusLabel, perso
 export function TopBar({ sample }: { sample: boolean }) {
   return (
     <header className="topbar">
-      <a href="/" className="wordmark">
-        FairSplit
+      <a href="/" className="wordmark" aria-label="FairSplit home">
+        <img src="/logo/wordmark.svg" alt="FairSplit" width="118" height="32" />
       </a>
       {sample && (
         <span className="badge badge-warn" title="Shown from built-in sample data, not the live server">
@@ -21,10 +21,13 @@ const STEPS = ['Funded', 'Proposed', 'Agreed', 'Paid'] as const;
 
 export function Stepper({ project }: { project: Project }) {
   const done = stepsDone(project.status);
+  // 결제 승인 전에도 제안·이의가 돈다(계약서) — 「Funded」 칸은 상태가 아니라 승인 여부로 칠한다
+  const funded = !!project.order?.authorizationId || done >= 3;
   return (
     <ol className={`stepper${project.status === 'paid' ? ' is-paid' : ''}`} aria-label="Progress">
       {STEPS.map((label, i) => {
-        const state = i < done ? 'done' : i === done ? 'current' : 'todo';
+        const isDone = i === 0 ? funded : i < done;
+        const state = isDone ? 'done' : i === done || (i === 0 && !funded) ? 'current' : 'todo';
         return (
           <li key={label} className={`step step-${state}`} aria-current={state === 'current' ? 'step' : undefined}>
             <span className="step-dot" aria-hidden="true">
@@ -109,21 +112,29 @@ export function SplitCard({
   project,
   onEvidence,
   activeEvidence,
+  compact = false,
 }: {
   project: Project;
   onEvidence: (ids: string[]) => void;
   activeEvidence: readonly string[];
+  /** 첫 화면 미리보기 — 같은 카드를 줄여서 쓴다(오름 화살표 · 사람당 근거 칩 1개 · 요약·과정 숨김) */
+  compact?: boolean;
 }) {
   const proposal = project.proposal!;
   const prev = previousProposal(project);
   const version = proposal.version;
 
   return (
-    <section className="card split" aria-labelledby="split-title">
+    <section className={`card split${compact ? ' split-compact' : ''}`} aria-labelledby={compact ? undefined : 'split-title'} aria-label={compact ? 'Example split' : undefined}>
       <div className="card-head">
-        <h2 id="split-title" className="card-title">
+        <h2 id={compact ? undefined : 'split-title'} className="card-title">
           Proposed split <span className="version">v{version}</span>
         </h2>
+        {compact && (
+          <span className="badge badge-warn" title="A recorded AI answer from the demo project, not live">
+            Sample
+          </span>
+        )}
         {proposal.by === 'rule' ? (
           <span className="badge badge-rule" title="The AI did not answer in time, so a fixed rule (role weight × minutes) proposed this split">
             Rule-based fallback
@@ -135,9 +146,9 @@ export function SplitCard({
       <p className="split-total">
         <span className="num">{formatMoney(project.budget)}</span> <span className="muted">from {project.client.name}</span>
       </p>
-      <p className="small">{proposal.summary}</p>
+      {!compact && <p className="small">{proposal.summary}</p>}
 
-      {prev && proposal.changedBecause && (
+      {!compact && prev && proposal.changedBecause && (
         <div className="changed" role="note" aria-label={`What changed from v${prev.version}`}>
           <strong className="changed-title">
             What changed from v{prev.version} → v{version}
@@ -160,12 +171,13 @@ export function SplitCard({
               approvedThisVersion={project.approvals[s.contributorId]?.version === version}
               onEvidence={onEvidence}
               activeEvidence={activeEvidence}
+              compact={compact}
             />
           );
         })}
       </ul>
 
-      {proposal.steps && proposal.steps.length > 0 && (
+      {!compact && proposal.steps && proposal.steps.length > 0 && (
         <details className="steps">
           <summary className="small">How the {proposal.by === 'rule' ? 'rule' : 'AI'} checked ({proposal.steps.length} steps)</summary>
           <ol>
@@ -189,7 +201,9 @@ function ShareRow({
   approvedThisVersion,
   onEvidence,
   activeEvidence,
+  compact,
 }: {
+  compact: boolean;
   share: Share;
   before?: Share;
   person?: Contributor;
@@ -200,6 +214,11 @@ function ShareRow({
 }) {
   const delta = before ? share.percent - before.percent : 0;
   const name = person?.name ?? share.contributorId;
+  // 미리보기: 마지막 근거에서 그 사람이 직접 한 일 한 줄만
+  const lastReason = share.reasons[share.reasons.length - 1];
+  const ownEvent = lastReason?.eventIds.find((eid) => project.log.find((e) => e.id === eid)?.actor === share.contributorId) ?? lastReason?.eventIds[0];
+  const reasons = compact ? (lastReason && ownEvent ? [{ text: lastReason.text, eventIds: [ownEvent] }] : []) : share.reasons;
+  const showDelta = before && delta !== 0 && (!compact || delta > 0);
   return (
     <li className="share" data-testid={`share-${share.contributorId}`}>
       <div className="share-top">
@@ -213,24 +232,32 @@ function ShareRow({
           <span className="small">{formatMoney(share.amount)}</span>
         </div>
       </div>
-      {before && delta !== 0 && (
+      {showDelta && (
         <p className={`delta ${delta > 0 ? 'delta-up' : 'delta-down'}`}>
           <span aria-hidden="true">{delta > 0 ? '▲' : '▼'}</span> {before.percent}% → {share.percent}% ({delta > 0 ? '+' : '−'}
           {Math.abs(delta)} pts · was {formatMoney(before.amount)})
         </p>
       )}
-      {before && delta === 0 && <p className="delta muted">No change from {previousVersionLabel(project)}</p>}
+      {!compact && before && delta === 0 && <p className="delta muted">No change from {previousVersionLabel(project)}</p>}
       <div className="bar" aria-hidden="true">
         <span style={{ width: `${Math.max(0, Math.min(100, share.percent))}%` }} />
       </div>
       <ul className="reasons">
-        {share.reasons.map((r, i) => (
+        {reasons.map((r, i) => (
           <li key={i} className="reason">
             <span className="small">{r.text}</span>
             <span className="chips">
               {r.eventIds.map((id) => {
                 const ev = project.log.find((e) => e.id === id);
                 const on = activeEvidence.includes(id);
+                const label = `${id} · ${ev ? shorten(ev.title) : 'missing event'}`;
+                if (compact) {
+                  return (
+                    <span key={id} className="chip chip-static">
+                      {label}
+                    </span>
+                  );
+                }
                 return (
                   <button
                     key={id}
@@ -240,7 +267,7 @@ function ShareRow({
                     onClick={() => onEvidence(r.eventIds)}
                     title={ev ? `${ev.id}: ${ev.title}` : `Log event ${id}`}
                   >
-                    {id} · {ev ? shorten(ev.title) : 'missing event'}
+                    {label}
                   </button>
                 );
               })}
@@ -258,7 +285,7 @@ const shorten = (t: string) => (t.length > CHIP_MAX ? `${t.slice(0, CHIP_MAX - 1
 const previousVersionLabel = (p: Project) => `v${previousProposal(p)?.version ?? ''}`;
 
 /** AI 가 생각하는 동안 — 스켈레톤 + 몇 줄을 읽는 중인지 */
-export function ThinkingCard({ title, line }: { title: string; line: string }) {
+export function ThinkingCard({ title, line, note }: { title: string; line: string; note?: string }) {
   return (
     <section className="card split thinking" aria-busy="true" aria-live="polite">
       <div className="card-head">
@@ -268,6 +295,7 @@ export function ThinkingCard({ title, line }: { title: string; line: string }) {
       <p className="small" role="status">
         {line}
       </p>
+      {note && <p className="small slow-note">{note}</p>}
       <div className="skeleton" aria-hidden="true">
         <span />
         <span />

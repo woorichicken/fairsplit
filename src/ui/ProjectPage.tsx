@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Project } from '../shared/types';
 import { ApiError, fixtureFromUrl, getApi } from './api';
 import type { Navigate } from './App';
@@ -8,10 +8,19 @@ import { Activity, Avatar, LogPanel, Receipt, SplitCard, StatusBadge, Stepper, T
 // Payouts 는 PENDING 으로 시작해 몇 초~몇 분 뒤 끝난다(12:30 실측) — 그동안 이 간격으로 refresh 한다
 const PAYOUT_POLL_MS = 2000;
 const DISPUTE_MAX = 500;
+// 서버는 20초에 규칙 제안으로 넘어간다(계약서) — 15초가 지나면 「오래 걸린다」를 미리 말해 둔다
+const SLOW_AI_MS = 15_000;
 
 type Busy = null | 'load' | 'fund' | 'complete' | 'propose' | 'dispute' | 'approve';
 
 const errorText = (e: unknown) => (e instanceof ApiError ? e : new ApiError('unknown', 'Something went wrong. Try again in a moment.', 0));
+
+/** 서버 오류를 사람 말로 — 5xx 의 기술 문구는 보이지 않고, 돈이 움직이지 않았다는 것부터 말한다 */
+export function humanError(e: ApiError): string {
+  if (e.code === 'FUNDING_REQUIRED') return e.message || 'The client has not authorized the PayPal payment yet. Fund the job first, then approve again.';
+  if (e.status >= 500) return 'FairSplit’s server had a problem. No money was moved. Try again in a moment.';
+  return e.message;
+}
 
 export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }) {
   const api = useMemo(getApi, []);
@@ -23,6 +32,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
   const [viewerId, setViewerId] = useState('');
   const [highlight, setHighlight] = useState<string[]>([]);
   const [disputeText, setDisputeText] = useState('');
+  const [slow, setSlow] = useState(false);
 
   // 첫 로드 — PayPal 에서 돌아온 경우(?paypal=return&token=<orderId>)면 fund/complete 를 먼저 부른다
   const load = useCallback(async () => {
@@ -71,6 +81,14 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
     return () => clearInterval(timer);
   }, [api, id, project?.status]);
 
+  // AI 를 기다리는 시간이 길어지면 안내를 더한다
+  useEffect(() => {
+    setSlow(false);
+    if (busy !== 'propose' && busy !== 'dispute') return;
+    const timer = setTimeout(() => setSlow(true), SLOW_AI_MS);
+    return () => clearTimeout(timer);
+  }, [busy]);
+
   async function act(kind: Exclude<Busy, null | 'load'>, run: () => Promise<Project>) {
     setBusy(kind);
     setActionError(null);
@@ -117,7 +135,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
           {loadError ? (
             <div className="card">
               <p role="alert" className="alert">
-                {loadError.status === 404 ? 'This project does not exist. It may have been reset.' : loadError.message}
+                {loadError.status === 404 ? 'This project does not exist. It may have been reset — start a new demo.' : humanError(loadError)}
               </p>
               <div className="row">
                 <button type="button" className="btn btn-primary" onClick={() => void load()}>
@@ -142,6 +160,10 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
   const waitingFor = project.contributors.filter((c) => project.approvals[c.id]?.version !== version);
   const canDecide = !!project.proposal && (project.status === 'proposed' || project.status === 'disputed');
   const thinking = busy === 'propose' || busy === 'dispute';
+  const moneyMoving = project.status === 'agreed' || project.status === 'paying' || project.status === 'paid';
+  const needsFunding = !project.order?.authorizationId && !moneyMoving;
+  // 오류는 누른 버튼 가까이에 — 폰에서 화면 맨 위 알림은 안 보인다
+  const showDecide = canDecide && !!viewer && !thinking;
   const n = project.log.length;
 
   return (
@@ -173,11 +195,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
 
         <Stepper project={project} />
 
-        {actionError && (
-          <p role="alert" className="alert">
-            {actionError.message} <span className="muted small">({actionError.code})</span>
-          </p>
-        )}
+        {actionError && !showDecide && <ActionAlert error={actionError} />}
 
         <div className="layout">
           <div className="col-log">
@@ -185,16 +203,20 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
           </div>
 
           <div className="col-main">
-            {project.status === 'draft' && (
-              <section className="card" aria-labelledby="fund-title">
-                <h2 id="fund-title" className="card-title">
-                  Step 1 · {project.client.name} funds the job
-                </h2>
-                <p className="small">
-                  {formatMoney(project.budget)} is authorized on PayPal now and captured only after every contributor approves the split.
+            {needsFunding && (
+              <section className="card fund" aria-labelledby="fund-title">
+                <div className="card-head">
+                  <h2 id="fund-title" className="card-title">
+                    {project.client.name} funds the job
+                  </h2>
+                  <span className="badge status-draft">Not funded yet</span>
+                </div>
+                <p className="small muted">
+                  {formatMoney(project.budget)} is authorized on PayPal and captured only after every contributor approves. The AI can propose
+                  before that — the payment is needed for the last approval.
                 </p>
                 <div className="row">
-                  <button type="button" className="btn btn-primary" onClick={fund} disabled={busy !== null}>
+                  <button type="button" className="btn" onClick={fund} disabled={busy !== null}>
                     {busy === 'fund' ? 'Opening PayPal…' : 'Fund with PayPal (sandbox)'}
                   </button>
                 </div>
@@ -207,24 +229,29 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
               <ThinkingCard
                 title={busy === 'dispute' ? `AI is re-checking for ${viewer?.name ?? 'the dispute'}` : 'AI is proposing a split'}
                 line={busy === 'dispute' ? `Re-reading ${n} log events with ${viewer?.name ?? 'the'}’s dispute…` : `Reading ${n} log events…`}
+                note={slow ? 'This is taking longer than usual. If the AI does not answer within 20 seconds, FairSplit uses a rule-based split instead — you will see a “Rule-based fallback” badge.' : undefined}
               />
             ) : project.proposal ? (
               <SplitCard project={project} onEvidence={setHighlight} activeEvidence={highlight} />
             ) : (
-              project.status !== 'draft' && (
+              (project.status === 'draft' || project.status === 'funded') && (
                 <section className="card" aria-labelledby="propose-title">
                   <h2 id="propose-title" className="card-title">
                     No split yet
                   </h2>
-                  <p className="small">The AI will read all {n} log events and propose each person’s share, with evidence lines.</p>
-                  <button type="button" className="btn btn-primary" onClick={() => void act('propose', () => api.propose(id))} disabled={busy !== null}>
+                  {n === 0 ? (
+                    <p className="empty">This project has no production log yet, so there is nothing for the AI to read.</p>
+                  ) : (
+                    <p className="small">The AI will read all {n} log events and propose each person’s share, with evidence lines.</p>
+                  )}
+                  <button type="button" className="btn btn-primary" onClick={() => void act('propose', () => api.propose(id))} disabled={busy !== null || n === 0}>
                     Ask AI to propose a split
                   </button>
                 </section>
               )
             )}
 
-            {canDecide && viewer && !thinking && (
+            {showDecide && viewer && (
               <section className="card decide" aria-labelledby="decide-title">
                 <div className="card-head">
                   <h2 id="decide-title" className="card-title">
@@ -234,6 +261,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                     <Avatar contributor={viewer} /> {viewer.name}
                   </span>
                 </div>
+                {actionError && <ActionAlert error={actionError} />}
                 {viewerApproved ? (
                   <p className="approved">✓ {viewer.name} approved v{version}.</p>
                 ) : (
@@ -302,5 +330,17 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
         </p>
       </main>
     </div>
+  );
+}
+
+function ActionAlert({ error }: { error: ApiError }) {
+  const ref = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    ref.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [error]);
+  return (
+    <p role="alert" className="alert" ref={ref}>
+      {humanError(error)} <span className="muted small">({error.code})</span>
+    </p>
   );
 }
