@@ -1,0 +1,9 @@
+{
+  // account_id 를 개인 계정으로 채운다 — 이 맥의 wrangler 기본은 회사 계정이다.
+  "name": "fairsplit",
+  "compatibility_date": "2026-08-22",
+  "main": "worker/index.ts",
+  "assets": { "directory": "dist", "not_found_handling": "single-page-application", "binding": "ASSETS", "run_worker_first": ["/api/*", "/mcp"] },
+  "ai": { "binding": "AI" },
+  "observability": { "enabled": true }
+}

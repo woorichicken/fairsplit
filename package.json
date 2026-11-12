@@ -1,0 +1,29 @@
+{
+  "name": "fairsplit",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "release": "pnpm build && npx wrangler@4.130.0 deploy"
+  },
+  "dependencies": {
+    "@solhun/feedback-kit-core": "^0.16.0",
+    "@solhun/feedback-kit-web": "^0.16.0",
+    "react": "19",
+    "react-dom": "19"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4",
+    "@playwright/test": "^1",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6",
+    "typescript": "^6",
+    "vite": "^8",
+    "vitest": "^4"
+  }
+}

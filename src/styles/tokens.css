@@ -1,0 +1,72 @@
+/* 앱 토큰 — 값의 근거는 pilot/design/DESIGN.md. [실측] 레퍼런스에서 잰 값 · [결정] 우리가 정한 값.
+   화면 코드는 이 변수만 쓴다. 새 색·크기를 코드에 박지 않는다. */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+:root {
+  /* 면 */
+  --page: #faf9f4;            /* [실측] Komoot 종이색 rgb(250,249,244) */
+  --surface: #ffffff;         /* [실측] Watch Duty */
+  --surface-glass: rgba(255, 255, 255, 0.95); /* [실측] Watch Duty 떠 있는 띠 0.95 — 한글 본문이 지도에 안 묻히게 Felt 0.80 대신 */
+  --hair: rgba(26, 26, 26, 0.08);   /* [결정] Felt 묶음선 5% 를 흰 바탕 대비로 올림 */
+  --line: rgba(26, 26, 26, 0.16);   /* [결정] 칩·입력 테두리 */
+
+  /* 글자 */
+  --ink: #1c1a18;             /* [실측] Komoot rgb(28,26,24) */
+  --ink-2: rgba(28, 26, 24, 0.72);  /* [결정] Watch Duty 0.6 은 흰 바탕 대비 부족 — 4.5 이상으로 */
+  --ink-3: rgba(28, 26, 24, 0.6);   /* [실측] Watch Duty — 큰 글자·보조 표시만 */
+  --on-accent: #ffffff;
+
+  /* 강조 — 다음 행동·선택 전용(한 곳) */
+  --accent: #404823;          /* [실측] Komoot 이끼색 rgb(64,72,35). 흰 글자 대비 9 이상 */
+  --accent-hover: #4f6814;    /* [실측] Komoot rgb(79,104,20) */
+  --accent-soft: #ede9de;     /* [실측] Komoot 모래색 rgb(237,233,222) — 선택된 줄 */
+
+  /* 위험 단계 — 호박색 한 계열. 숫자와 항상 같이 쓴다(색만으로 말하지 않는다) */
+  --risk-0: #f5f3ec;          /* [실측] Komoot rgb(245,243,236) — 기록 없음 */
+  --risk-1: #fbe8b6;          /* [결정] */
+  --risk-2: #f2a900;          /* [실측] Watch Duty 경고 호박 rgb(242,169,0) */
+  --risk-3: #b35400;          /* [결정] 흰 글자 대비 5 이상 */
+  --risk-ink: #6b3b00;        /* [결정] 호박 바탕 위 글자 */
+
+  --fire: #d98a00;            /* [결정] 산불 막대 — 호박 계열 */
+  --slide: #6f6252;           /* [결정] 산사태 막대 — 흙색. 산불과 색으로 구분되고 흰 바탕 대비 5.8 */
+
+  --ok: #404823;             /* [결정] 예약 창구 열림 = 강조색과 같다 */
+  --warn: #8a5a00;            /* [결정] 곧 열림·주의 글자 */
+
+  /* 글자 크기 — 일반 시민이 폰으로 읽는다. 14 밑으로 내려가지 않는다 */
+  --font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  --mono: ui-monospace, 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace; /* [실측] Watch Duty 라벨 Roboto Mono 500 */
+  --t-display: 700 28px/36.4px var(--font);   /* [실측] Watch Duty h5 28/36.4 */
+  --t-title: 600 20px/28px var(--font);       /* [실측] Watch Duty 20/28 600 */
+  --t-subtitle: 600 16px/22.4px var(--font);  /* [실측] Watch Duty 본문 줄간격 1.4 */
+  --t-body: 400 16px/24px var(--font);        /* [결정] 한글이라 1.4 → 1.5 */
+  --t-small: 400 15px/22px var(--font);       /* [결정] Watch Duty 14/19.6 → 처음 쓰는 사람 시험 「돋보기 쓰는 나이엔 작다」 */
+  --t-label: 500 12px/16px var(--mono);       /* [실측] Watch Duty 12px 500 mono — 영문 도구 이름·숫자 라벨에만, 한글 라벨은 --t-small */
+  --t-num: 600 20px/24px var(--font);         /* [결정] 근거 숫자. tabular-nums 같이 */
+
+  /* 간격·모서리 */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; /* [실측] Felt 12·16 + Watch Duty 24 */
+  --r-s: 4px;                 /* [실측] Watch Duty */
+  --r-m: 12px;                /* [실측] Watch Duty --radius-medium .75rem */
+  --r-l: 16px;                /* [실측] Watch Duty */
+  --r-pill: 999px;            /* [실측] Watch Duty */
+
+  /* 깊이 — 페이지 면은 그림자 0(Watch Duty). 지도 위에 뜬 패널만 얇게(Felt) */
+  --shadow-float: 0 0 1px rgba(26, 26, 26, 0.3), 0 6px 12px -6px rgba(26, 26, 26, 0.12), 0 8px 24px -4px rgba(26, 26, 26, 0.1); /* [실측] Felt 0 0 1 + 6 12 −6 + 8 24 −4 */
+
+  /* 움직임 */
+  --ease: cubic-bezier(0.215, 0.61, 0.355, 1);  /* [실측] Watch Duty */
+  --ease-in: cubic-bezier(0.22, 1, 0.36, 1);    /* [실측] Watch Duty 등장 */
+  --d-fast: 200ms;            /* [결정] */
+  --d-step: 320ms;            /* [결정] 도구 호출 한 줄이 찍히는 간격 */
+
+  /* 틀 */
+  --panel-w: 420px;           /* [결정] 데스크톱 왼쪽 패널 */
+  --bar-h: 56px;              /* [결정] Felt 48 + 터치 */
+  --touch: 44px;              /* [결정] 칩·버튼 최소 */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --d-fast: 0ms; --d-step: 0ms; }
+}
