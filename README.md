@@ -10,6 +10,11 @@ and revises. When **every** contributor agrees, FairSplit captures the client's 
 
 > The AI never moves money. It only proposes. Money moves after unanimous approval.
 
+**Demo video (2:37):** https://youtu.be/7wKW3W0SmMk · **Live:** https://fairsplit.solhun.com
+
+![Phone: landing, waiting for funds, waiting for approvals](docs/demo/phone-screens.png)
+![Phone: paid split and the real PayPal Payouts receipt](docs/demo/phone-paid-receipt.png)
+
 Built for the [PayPal AI Hackathon 2026](https://paypalaihackathon.devpost.com/).
 
 ## Why
