@@ -68,7 +68,7 @@ export function ImportPage({ navigate }: { navigate: Navigate }) {
         <h1 className="landing-title">Split a job from your own production log</h1>
         <p className="landing-lead">
           List who worked on it, paste the log as CSV, and set the budget. The AI proposes the split from these lines only. The example below is
-          made up — edit it or replace it.
+          made up. Edit it or replace it.
         </p>
 
         <form

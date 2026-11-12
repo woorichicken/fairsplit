@@ -3,7 +3,7 @@ import type { LogKind, Project } from '../shared/types';
 import { ApiError, fixtureFromUrl, getApi, type MissingWork } from './api';
 import { EXAMPLE_MISSING, EXAMPLE_WEAK } from './fixtures';
 import type { Navigate } from './App';
-import { formatMoney, KIND_LABEL } from './format';
+import { formatMoney, KIND_LABEL, plainText } from './format';
 import { Activity, Avatar, LogPanel, Receipt, SplitCard, StatusBadge, Stepper, ThinkingCard, TopBar } from './parts';
 
 // Payouts 는 PENDING 으로 시작해 몇 초~몇 분 뒤 끝난다(12:30 실측) — 그동안 이 간격으로 refresh 한다
@@ -166,7 +166,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
           {loadError ? (
             <div className="card">
               <p role="alert" className="alert">
-                {loadError.status === 404 ? 'This project does not exist. It may have been reset — start a new demo.' : humanError(loadError)}
+                {loadError.status === 404 ? 'This project does not exist. It may have been reset. Start a new demo.' : humanError(loadError)}
               </p>
               <div className="row">
                 <button type="button" className="btn btn-primary" onClick={() => void load()}>
@@ -233,6 +233,16 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
 
         <Stepper project={project} />
 
+        {/* 첫 화면에서 할 일이 한 문장으로 읽히게(toss-lens one-thing) — 주 버튼을 늘리지 않으려고 링크로 */}
+        {showDecide && waitingFor.length > 0 && (
+          <p className="next-step small">
+            Next: {waitingFor.map((c) => c.name).join(', ')} approve v{version}.{' '}
+            <a href="#decide-title" onClick={(e) => { e.preventDefault(); document.getElementById('decide-title')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}>
+              Go to your decision ↓
+            </a>
+          </p>
+        )}
+
         {actionError && !showDecide && <ActionAlert error={actionError} />}
 
         <div className="layout">
@@ -252,7 +262,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                 <p className="small muted">
                   {formatMoney(project.budget)} is authorized on PayPal now. PayPal holds an authorization for up to 29 days (3-day honor period);
                   FairSplit captures only after everyone agrees. If agreement takes longer than that, the client authorizes again. The AI can propose
-                  before funding — the payment is needed for the last approval.
+                  before funding. The payment is needed only for the last approval.
                 </p>
                 <div className="fund-row">
                   <button type="button" className="btn" onClick={fund} disabled={busy !== null}>
@@ -272,7 +282,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
               <ThinkingCard
                 title={busy === 'dispute' ? `AI is re-checking for ${viewer?.name ?? 'the dispute'}` : 'AI is proposing a split'}
                 line={busy === 'dispute' ? `Re-reading ${n} log events with ${viewer?.name ?? 'the'}’s dispute…` : `Reading ${n} log events…`}
-                note={slow ? 'This is taking longer than usual. If the AI does not answer within 20 seconds, FairSplit uses a rule-based split instead — you will see a “Rule-based fallback” badge.' : undefined}
+                note={slow ? 'This is taking longer than usual. If the AI does not answer within 20 seconds, FairSplit uses a rule-based split instead. You will see a “Rule-based fallback” badge.' : undefined}
               />
             ) : project.proposal ? (
               <SplitCard project={project} onEvidence={setHighlight} activeEvidence={highlight} />
@@ -359,7 +369,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                 {viewerDispute ? (
                   <p className="small muted dispute-used">
                     {viewer.name} already {viewerDispute.onVersion === version ? `disputed v${version}` : `got an answer in v${version}`}. Each person gets one dispute per version
-                    — approve it, or wait until someone else’s dispute brings a new version.
+                    . Approve it, or wait until someone else’s dispute brings a new version.
                   </p>
                 ) : (
                   disputeOpen && (
@@ -435,8 +445,8 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                   {project.disputes.map((d) => (
                     <li key={d.id} className="small">
                       <strong>{project.contributors.find((c) => c.id === d.contributorId)?.name ?? d.contributorId}:</strong> “{d.text}”
-                      {d.answeredInVersion ? <span className="muted"> — answered in v{d.answeredInVersion}</span> : <span className="muted"> — open</span>}
-                      {d.answer && <p className="dispute-answer">AI: {d.answer}</p>}
+                      {d.answeredInVersion ? <span className="muted"> (answered in v{d.answeredInVersion})</span> : <span className="muted"> (open)</span>}
+                      {d.answer && <p className="dispute-answer">AI: {plainText(d.answer)}</p>}
                     </li>
                   ))}
                 </ul>
@@ -462,7 +472,7 @@ function ActionAlert({ error }: { error: ApiError }) {
   }, [error]);
   return (
     <p role="alert" className="alert" ref={ref}>
-      {humanError(error)} <span className="muted small">({error.code})</span>
+      {humanError(error)}
     </p>
   );
 }

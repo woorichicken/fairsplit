@@ -61,7 +61,7 @@ export function Landing({ navigate }: { navigate: Navigate }) {
               </button>
             </div>
             <p className="muted small">
-              Sandbox demo — no real money moves. To split your own job, paste your team’s work log (CSV).
+              Sandbox demo. No real money moves. To split your own job, paste your team’s work log (CSV).
             </p>
             {error && (
               <p role="alert" className="alert">
@@ -74,8 +74,8 @@ export function Landing({ navigate }: { navigate: Navigate }) {
           </div>
           {caption && (
             <p className="small muted preview-caption hero-caption">
-              Recorded AI answers from the demo: {caption.weak} asked for 70% with no new evidence — no change. {caption.missing} added missing work
-              to the log ({caption.added}, marked as added in a dispute) — {caption.was}% → {caption.now}%.
+              Recorded AI answers from the demo: {caption.weak} asked for 70% with no new evidence, so nothing changed. {caption.missing} added
+              missing work to the log ({caption.added}, marked as added in a dispute), so the share went from {caption.was}% to {caption.now}%.
             </p>
           )}
         </section>

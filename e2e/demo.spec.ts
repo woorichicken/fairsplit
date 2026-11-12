@@ -34,7 +34,7 @@ test('demo story: v1 → weak dispute (no change) → missing work (Sora up) →
   await page.getByRole('button', { name: 'Try a weak dispute (as Jun)' }).click();
   await page.getByRole('button', { name: 'Send dispute' }).click();
   await expect(page.getByText(`Re-reading ${V1.log.length} log events`)).toBeVisible();
-  await expect(page.getByRole('note', { name: 'AI answer to Jun' })).toContainText('No change — the log doesn’t support this claim');
+  await expect(page.getByRole('note', { name: 'AI answer to Jun' })).toContainText('No change: the log doesn’t support this claim');
   await expect(sora).toContainText(`${sharePct(V1, 'sora')}%`);
   // Jun 은 이 판(자기 이의의 답)에 다시 못 건다
   await expect(page.getByText(/Jun already got an answer in v2/)).toBeVisible();
@@ -74,7 +74,7 @@ test('Landing shows a real split card and Try the demo opens the project', async
   const preview = page.getByRole('region', { name: 'Example split' });
   await expect(preview).toContainText('AI proposal');
   await expect(preview).toContainText('Recorded example');
-  await expect(page.getByText(/Recorded AI answers from the demo: Jun asked for 70% with no new evidence — no change\. Sora added missing work/)).toBeVisible();
+  await expect(page.getByText(/Recorded AI answers from the demo: Jun asked for 70% with no new evidence, so nothing changed\. Sora added/)).toBeVisible();
   await expect(preview).toContainText(`${sharePct(PRE_MISSING, 'sora')}% → ${sharePct(FINAL, 'sora')}%`);
   await page.getByRole('button', { name: 'Try the demo' }).click();
   await expect(page).toHaveURL(/\/p\/sample\?fixture=v1$/);
@@ -191,7 +191,7 @@ test('weak dispute: the AI answer is shown next to the split', async ({ page }) 
   await page.getByRole('button', { name: 'Send dispute' }).click();
   const note = page.getByRole('note', { name: 'AI answer to Jun' });
   await expect(note).toContainText('Jun: “I should get 70% because editing is the hardest part.”');
-  await expect(note).toContainText('No change — the log doesn’t support this claim');
+  await expect(note).toContainText('No change: the log doesn’t support this claim');
   await expect(note).toContainText('No change:');
   // 몫은 v1 그대로 — 화살표가 없다
   await expect(page.locator('.delta-up, .delta-down')).toHaveCount(0);
@@ -211,7 +211,7 @@ test('real paid project: no Sample badge, PayPal IDs and unclaimed explained', a
   await expect(page.getByRole('heading', { name: 'Payout receipt' })).toBeVisible();
   await expect(page.getByText('Sample data')).toHaveCount(0);
   for (const id of ['43510105SL835515C', '07C37982KW8841448', '07C28288056195432', 'X62XZ7LSPKK3Y', 'TX0', 'ITEM2']) await expect(page.getByText(id)).toBeVisible();
-  await expect(page.getByTestId('payout-sora')).toContainText('Unclaimed — PayPal emailed a claim link (receiver has no sandbox account)');
+  await expect(page.getByTestId('payout-sora')).toContainText('Unclaimed: PayPal emailed a claim link (receiver has no sandbox account)');
 });
 
 test('fund step tells the honor period and the sandbox test card', async ({ page }) => {

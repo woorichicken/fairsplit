@@ -61,7 +61,7 @@ export function payoutStatusLabel(status: string): string {
     case 'ONHOLD':
       return 'Sending…';
     case 'UNCLAIMED':
-      return 'Unclaimed — PayPal emailed a claim link (receiver has no sandbox account)';
+      return 'Unclaimed: PayPal emailed a claim link (receiver has no sandbox account)';
     case 'FAILED':
     case 'BLOCKED':
     case 'DENIED':
@@ -71,4 +71,32 @@ export function payoutStatusLabel(status: string): string {
     default:
       return status;
   }
+}
+
+// ───── 화면에 코드·모델 이름이 그대로 보이지 않게(plain-words, 7회차) ─────
+
+/** 모델 id(claude-sonnet-5-5) → 「Claude」. 서버 기록 문장 안에 들어 있어도 바꾼다 */
+const MODEL_ID = /\bclaude-[a-z0-9.-]+\b/gi;
+export const plainText = (text: string | undefined): string => (text ?? '').replace(MODEL_ID, 'Claude');
+export const modelLabel = (model: string | undefined): string => (model && /claude/i.test(model) ? 'Claude' : 'AI');
+
+/** AI 가 쓴 도구 → 사람 말 */
+const STEP_LABEL: Record<string, string> = {
+  list_log_events: 'Read the log',
+  get_contributor: 'Looked up a person',
+  get_disputes: 'Read the disputes',
+  submit_proposal: 'Proposed',
+  rule: 'Rule',
+  fallback: 'Fallback',
+};
+export const stepLabel = (tool: string): string => STEP_LABEL[tool] ?? tool.replace(/_/g, ' ');
+/** 「list_log_events(actor=sora) → 3 events」 의 앞 호출 모양을 떼고 결과만 */
+export const stepResult = (result: string): string => result.replace(/^[a-z_]+\([^)]*\)\s*→\s*/i, '');
+
+/** Payouts 배치 상태 → 사람 말 */
+export function batchLabel(status: string): string {
+  const s = status.toUpperCase();
+  if (s === 'SUCCESS') return 'Batch complete';
+  if (s === 'PENDING' || s === 'PROCESSING') return 'Batch sending';
+  return `Batch ${status.toLowerCase()}`;
 }

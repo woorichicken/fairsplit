@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { Contributor, LogEvent, PayoutItem, Project, Proposal, Share } from '../shared/types';
-import { formatMoney, formatTime, initials, KIND_LABEL, payoutStatusLabel, personName, stepsDone } from './format';
+import { batchLabel, formatMoney, formatTime, initials, KIND_LABEL, modelLabel, payoutStatusLabel, personName, plainText, stepLabel, stepResult, stepsDone } from './format';
 
 export function TopBar({ sample }: { sample: boolean }) {
   return (
@@ -153,13 +153,13 @@ export function SplitCard({
             Rule-based fallback
           </span>
         ) : (
-          <span className="badge badge-ai">AI proposal{proposal.model ? ` · ${proposal.model}` : ''}</span>
+          <span className="badge badge-ai">AI proposal · {modelLabel(proposal.model)}</span>
         )}
       </div>
       <p className="split-total">
         <span className="num">{formatMoney(project.budget)}</span> <span className="muted">from {project.client.name}</span>
       </p>
-      {!compact && <p className="small">{proposal.summary}</p>}
+      {!compact && <p className="small">{plainText(proposal.summary)}</p>}
 
       {!compact && <ApprovalStrip project={project} />}
 
@@ -168,13 +168,13 @@ export function SplitCard({
           <strong className="changed-title">
             {splitMoved ? `What changed from v${prev.version} → v${version}` : `AI answer to ${disputerName ?? 'the'}’s dispute`}
           </strong>
-          {!splitMoved && <span className="badge badge-rule no-change">No change — the log doesn’t support this claim</span>}
+          {!splitMoved && <span className="badge badge-rule no-change">No change: the log doesn’t support this claim</span>}
           {answered && (
             <p className="small muted">
               {disputerName}: “{answered.text}”
             </p>
           )}
-          <p className="small">{proposal.changedBecause}</p>
+          <p className="small">{plainText(proposal.changedBecause)}</p>
         </div>
       )}
 
@@ -204,7 +204,7 @@ export function SplitCard({
           <ol>
             {proposal.steps.map((st, i) => (
               <li key={`${st.tool}-${i}`} className="small">
-                <code className="tool">{st.tool}</code> {st.result}
+                <span className="step-tool">{stepLabel(st.tool)}</span> {plainText(stepResult(st.result))}
               </li>
             ))}
           </ol>
@@ -346,7 +346,7 @@ export function Receipt({ project }: { project: Project }) {
         <h2 id="receipt-title" className="card-title">
           {sending ? `PayPal is sending ${n} payouts…` : 'Payout receipt'}
         </h2>
-        {sending ? <span className="spinner" aria-hidden="true" /> : <span className="badge badge-ok">Batch {payout.status}</span>}
+        {sending ? <span className="spinner" aria-hidden="true" /> : <span className="badge badge-ok">{batchLabel(payout.status)}</span>}
       </div>
       <p className="small muted">One PayPal Payouts batch for all {n} contributors. IDs below come straight from PayPal (sandbox).</p>
       <dl className="ids">
@@ -414,7 +414,7 @@ export function Activity({ project }: { project: Project }) {
         <ol className="activity-list">
           {items.map((e, i) => (
             <li key={`${e.at}-${i}`} className="small">
-              <span className="muted">{formatTime(e.at)}</span> {e.text}
+              <span className="muted">{formatTime(e.at)}</span> {plainText(e.text)}
             </li>
           ))}
         </ol>
@@ -427,7 +427,7 @@ const STATUS_LABEL: Record<Project['status'], string> = {
   draft: 'Waiting for funds',
   funded: 'Funded',
   proposed: 'Waiting for approvals',
-  disputed: 'Disputed — AI revising',
+  disputed: 'Disputed, AI is re-checking',
   agreed: 'Everyone agreed',
   paying: 'PayPal is sending',
   paid: 'Paid',

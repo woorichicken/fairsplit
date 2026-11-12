@@ -111,6 +111,8 @@ h1, h2, p { margin: 0; }
   border: 1px solid var(--line); background: var(--surface); font: var(--t-subtitle);
 }
 
+.next-step { margin: calc(var(--s-2) * -1) 0 0; color: var(--ink-2); }
+.next-step a { color: var(--ink); text-decoration: underline; }
 .stepper { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); }
 .step { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-2); border-radius: var(--r-m); background: var(--surface); border: 1px solid var(--hair); }
 .step-dot {
@@ -164,6 +166,7 @@ h1, h2, p { margin: 0; }
 .reasons { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
 .approved { color: var(--ok); font: var(--t-subtitle); }
 .steps summary { cursor: pointer; color: var(--ink-2); margin-top: var(--s-3); }
+.step-tool { font-weight: 500; }
 .steps ol { margin: var(--s-2) 0 0; padding-left: var(--s-5); display: grid; gap: var(--s-1); }
 
 /* AI 생각 중 */

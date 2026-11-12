@@ -58,7 +58,8 @@ export function applyProposal(p: Project, proposal: Proposal, at: string): void 
   p.proposal = proposal;
   p.approvals = {};
   p.status = 'proposed';
-  const who = proposal.by === 'ai' ? `AI (${proposal.model ?? 'Claude'})` : 'Rule-based fallback';
+  // 화면에 모델 id 를 보이지 않는다(plain-words) — 모델은 proposal.model 에 남아 있다
+  const who = proposal.by === 'ai' ? 'AI (Claude)' : 'Rule-based fallback';
   log(p, at, proposal.version === 1 ? `${who} proposed split v1 from the production log.` : `${who} revised the split to v${proposal.version}. Approvals were reset.`);
   for (const d of p.disputes) {
     if (d.answeredInVersion === undefined) {
