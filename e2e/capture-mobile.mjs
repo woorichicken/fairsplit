@@ -7,7 +7,7 @@ const [base = 'https://fairsplit.solhun.com', outDir = '/tmp', prefix = 'm', api
 const SCREENS = [
   { name: 'landing', path: '/', ready: (p) => p.getByRole('region', { name: 'Example split' }).waitFor() },
   { name: 'fund', path: '/p/31c064d0bb7e', ready: (p) => p.getByRole('button', { name: /PayPal/ }).first().waitFor() },
-  { name: 'decide', path: '/p/fe9f2364d485', ready: (p) => p.getByRole('heading', { name: /Proposed split/ }).waitFor() },
+  { name: 'decide', path: '/p/5d69abc2abb9', ready: (p) => p.getByRole('heading', { name: /Proposed split/ }).waitFor() },
   { name: 'paid', path: '/p/797aad12a5a3', ready: (p) => p.getByRole('heading', { name: /Payout receipt/ }).waitFor({ timeout: 20_000 }) },
 ];
 const browser = await chromium.launch();
