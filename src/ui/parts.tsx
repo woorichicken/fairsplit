@@ -425,7 +425,8 @@ export function Activity({ project }: { project: Project }) {
   );
 }
 
-const STATUS_LABEL: Record<Project['status'], string> = {
+// 상태 이름은 이 표 하나 — 배지와 폰 요약 칸 제목이 같이 쓴다(S5 fix1: 둘이 달라 「Waiting for approvals」 옆에 「Waiting for PayPal funding」이 떴다)
+export const STATUS_LABEL: Record<Project['status'], string> = {
   draft: 'Waiting for funds',
   funded: 'Funded',
   proposed: 'Waiting for approvals',

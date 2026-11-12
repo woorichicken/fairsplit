@@ -294,7 +294,7 @@ code, .tool { overflow-wrap: anywhere; }
     gap: var(--s-5); overflow: hidden;
   }
   .hero-copy .eyebrow { order: 0; color: var(--on-brand-2); }
-  .landing-title { order: 1; font: var(--t-cash-hero); letter-spacing: -0.03em; }
+  .landing-title { order: 1; font: var(--t-cash-hero); letter-spacing: -0.035em; color: var(--on-accent); }
   .hero-copy .landing-lead { order: 2; color: var(--on-accent); font: var(--t-subtitle); }
   .hero-cta { order: 3; width: 100%; }
   .hero-copy > .muted { order: 4; color: var(--on-brand-2); }
@@ -345,14 +345,20 @@ code, .tool { overflow-wrap: anywhere; }
   .money-shares { list-style: none; margin: 0; padding: 0; display: grid; }
   .money-pct, .money-amt, .money-total { font-variant-numeric: tabular-nums; }
 
-  /* M-2 결제 전 = Cash App Money: 흰 시트 · 「라벨 ›」 · 초대형 잔액 · 시트 뒤로 카드 한 장이 비친다 */
+  /* M-2 결제 전 = Cash App Money: 위는 브랜드 색 면(카드 한 장이 넣어져 있다) · 그 위로 올라온 흰 시트에 「라벨 ›」 + 초대형 잔액.
+     fix1: 시트 밖에 잘린 파란 띠가 붙어 「잘린 것」처럼 보였다 → 색 면을 칸 안 위쪽에 충분히(88px) 깔고 시트를 그 위로 올린다.
+     isolation 으로 ::before(카드)·::after(시트)가 칸의 색 배경 「위」, 글자 「아래」에 그려진다 */
   .money-hero {
-    margin-top: var(--s-6); padding: var(--s-5) var(--s-5) var(--s-6); border-radius: var(--r-sheet);
-    background: var(--surface); color: var(--ink); box-shadow: var(--m-shadow-card);
+    isolation: isolate; overflow: hidden; margin-top: 0; padding: calc(var(--m-face-h) + var(--s-5)) var(--s-5) var(--s-6);
+    border-radius: var(--r-sheet); background: var(--brand-face); color: var(--ink); box-shadow: var(--m-shadow-card);
   }
   .money-hero::before {
-    content: ''; position: absolute; z-index: -1; top: calc(var(--s-6) * -1); left: var(--s-4); right: var(--s-4);
-    height: 72px; border-radius: var(--r-pass); background: var(--brand-face);
+    content: ''; position: absolute; z-index: -1; top: var(--s-5); left: var(--s-5); right: var(--s-5); height: var(--m-face-h);
+    border-radius: var(--r-pass); background: var(--on-brand-line); border: 1px solid var(--on-brand-line);
+  }
+  .money-hero::after {
+    content: ''; position: absolute; z-index: -1; inset: var(--m-face-h) 0 0 0;
+    border-radius: var(--r-sheet) var(--r-sheet) 0 0; background: var(--surface);
   }
   .money-kicker { font: var(--t-body); font-weight: 500; color: var(--ink); }
   .money-kicker::after { content: ' ›'; color: var(--ink-3); }
@@ -361,9 +367,9 @@ code, .tool { overflow-wrap: anywhere; }
 
   /* M-3 결정 = Cash App Distribute paycheck: 검은 면 · 조각 사이 틈이 있는 고리 · 가운데 큰 숫자 · 점 목록 */
   .money-hero-proposed, .money-hero-disputed {
-    margin-top: 0; padding: var(--s-5) var(--s-4) var(--s-4); background: var(--m-dark); color: var(--on-accent); box-shadow: var(--m-shadow-lift);
+    padding: var(--s-5) var(--s-4) var(--s-4); background: var(--m-dark); color: var(--on-accent); box-shadow: var(--m-shadow-lift);
   }
-  .money-hero-proposed::before, .money-hero-disputed::before { content: none; }
+  .money-hero-proposed::before, .money-hero-disputed::before, .money-hero-proposed::after, .money-hero-disputed::after { content: none; }
   .money-hero-proposed .money-kicker, .money-hero-disputed .money-kicker { font: var(--t-largetitle); font-size: 24px; color: var(--on-accent); }
   .money-hero-proposed .money-kicker::after, .money-hero-disputed .money-kicker::after { content: none; }
   .money-hero-proposed .money-total, .money-hero-disputed .money-total {
@@ -393,8 +399,8 @@ code, .tool { overflow-wrap: anywhere; }
   .money-hero-proposed .money-pct, .money-hero-disputed .money-pct { order: 3; font: var(--t-body); font-weight: 600; min-width: 3.2em; text-align: right; }
 
   /* M-4 지급 = Apple Wallet: 검은 면 · large title · 겹쳐 쌓인 패스(위 띠만 보이고 맨 아래 장은 다) */
-  .money-hero-paid { margin-top: 0; padding: var(--s-5) var(--s-4) var(--s-4); background: var(--m-dark); color: var(--on-accent); box-shadow: var(--m-shadow-lift); }
-  .money-hero-paid::before { content: none; }
+  .money-hero-paid { overflow: visible; padding: var(--s-5) var(--s-4) var(--s-4); background: var(--m-dark); color: var(--on-accent); box-shadow: var(--m-shadow-lift); }
+  .money-hero-paid::before, .money-hero-paid::after { content: none; }
   .money-hero-paid .money-kicker { font: var(--t-largetitle); color: var(--on-accent); }
   .money-hero-paid .money-kicker::before { content: '✓ '; color: var(--state-paid-dot); }
   .money-hero-paid .money-kicker::after { content: none; }

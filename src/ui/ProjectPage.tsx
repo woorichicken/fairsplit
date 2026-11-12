@@ -4,7 +4,7 @@ import { ApiError, fixtureFromUrl, getApi, type MissingWork } from './api';
 import { EXAMPLE_MISSING, EXAMPLE_WEAK } from './fixtures';
 import type { Navigate } from './App';
 import { formatMoney, KIND_LABEL, plainText } from './format';
-import { Activity, Avatar, LogPanel, Receipt, SplitCard, StatusBadge, Stepper, ThinkingCard, TopBar } from './parts';
+import { Activity, Avatar, LogPanel, Receipt, SplitCard, STATUS_LABEL, StatusBadge, Stepper, ThinkingCard, TopBar } from './parts';
 
 // Payouts 는 PENDING 으로 시작해 몇 초~몇 분 뒤 끝난다(12:30 실측) — 그동안 이 간격으로 refresh 한다
 const PAYOUT_POLL_MS = 2000;
@@ -506,22 +506,24 @@ function heroLine(project: Project, waitingFor: number): { kicker: string; line:
   const funded = !!project.order?.authorizationId;
   const total = project.contributors.length;
   const version = project.proposal?.version ?? 0;
+  // 제목(kicker)은 배지와 같은 상태 이름 — 결제 여부는 제목이 아니라 아래 줄에서 말한다
+  const kicker = STATUS_LABEL[project.status];
   switch (project.status) {
     case 'paid':
-      return { kicker: 'Paid', line: `PayPal sent all ${total} shares in one Payouts batch.` };
+      return { kicker, line: `PayPal sent all ${total} shares in one Payouts batch.` };
     case 'agreed':
     case 'paying':
-      return { kicker: 'Everyone agreed', line: 'PayPal is capturing the payment and sending the payouts.' };
+      return { kicker, line: 'PayPal is capturing the payment and sending the payouts.' };
     case 'proposed':
     case 'disputed':
       return {
-        kicker: funded ? 'Held on PayPal' : 'Waiting for PayPal funding',
-        line: `AI split v${version} · ${total - waitingFor} of ${total} approved. Money moves only when all ${total} agree.`,
+        kicker,
+        line: `AI split v${version} · ${total - waitingFor} of ${total} approved. ${funded ? 'Held on PayPal.' : 'Not funded on PayPal yet.'} Money moves only when all ${total} agree.`,
       };
     case 'funded':
-      return { kicker: 'Held on PayPal', line: 'Authorized, not captured. Next, the AI reads the log and proposes a split.' };
+      return { kicker, line: 'Held on PayPal. Authorized, not captured. Next, the AI reads the log and proposes a split.' };
     default:
-      return { kicker: 'Waiting for PayPal funding', line: `${project.client.name} pays on PayPal first. Nobody is paid until everyone agrees.` };
+      return { kicker, line: `${project.client.name} pays on PayPal first. Nobody is paid until everyone agrees.` };
   }
 }
 

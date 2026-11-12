@@ -82,6 +82,7 @@
   --m-dark: #0a0a0c;          /* [레퍼런스] Distribute paycheck · Wallet 검은 면 */
   --m-dark-2: #1c1c1f;        /* [레퍼런스] Wallet Apple Cash 패스 면 */
   --on-dark-2: rgba(255, 255, 255, 0.68); /* [결정] 검은 면 위 보조 글자(대비 9+) */
+  --m-face-h: 88px;          /* [레퍼런스] Cash App Money — 시트 위로 보이는 색 면 높이(fix1) */
   --r-card-m: 24px;           /* [레퍼런스] Cash App 흰 카드 모서리(Savings·Pools) */
   --r-sheet: 32px;            /* [레퍼런스] Cash App Money 흰 시트 · 고리 화면 위 모서리 */
   --r-pass: 14px;             /* [레퍼런스] Wallet 패스 모서리 */
@@ -89,7 +90,7 @@
   --m-shadow-lift: 0 18px 40px rgba(10, 10, 12, 0.22);  /* [결정] 고정 버튼·검은 면 */
   --m-shadow-pass: 0 -6px 16px rgba(0, 0, 0, 0.35);     /* [결정] 겹친 패스 위쪽 그림자 — 앞 장과 갈라 보이게 */
   --t-largetitle: 700 30px/36px var(--font);            /* [레퍼런스] iOS large title(Money · Wallet) */
-  --t-cash-hero: 500 42px/44px var(--font);             /* [레퍼런스] Cash App 랜딩 제목 — 굵지 않고 크다, 줄 간격 좁게 */
+  --t-cash-hero: 700 42px/44px var(--font);             /* [레퍼런스] Cash App 랜딩 제목 — 아주 굵고 크다(fix1: 500 은 얇아 보였다). 800 은 글꼴 요청에 굵기를 더해야 해서 데스크톱 글자 모양이 바뀐다 → 이미 받는 700 */
   --t-balance: 600 56px/58px var(--font);               /* [레퍼런스] Cash App $789.13 — 화면에서 가장 큰 글자 */
   --t-card-amount: 600 32px/36px var(--font);           /* [레퍼런스] Cash App 카드 안 $980.00 · $320.00 */
   --t-pass-name: 700 22px/26px var(--font);             /* [레퍼런스] Wallet 패스 왼쪽 이름(DUNKIN' · DELTA) */
