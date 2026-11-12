@@ -3,14 +3,22 @@ export type ProjectStatus = 'draft' | 'funded' | 'proposed' | 'disputed' | 'agre
 export interface Money { value: string; currency: 'USD' } // "600.00" — 문자열, 센트 2자리
 export interface Contributor { id: string; name: string; role: string; paypalEmail: string; avatar?: string }
 export type LogKind = 'brief' | 'draft' | 'revision' | 'review_comment' | 'recording' | 'edit' | 'asset' | 'approval';
-export interface LogEvent { id: string; at: string; actor: string; kind: LogKind; title: string; detail?: string; minutes?: number }
+export interface LogEvent {
+  id: string; at: string; actor: string; kind: LogKind; title: string; detail?: string; minutes?: number;
+  /** 이의로 붙은 줄이면 'dispute' — 당사자 주장이라 화면·AI 에 출처를 드러낸다(5회차) */
+  source?: 'log' | 'dispute'; addedBy?: string;
+}
 export interface Reason { text: string; eventIds: string[] } // eventIds = LogEvent.id — 화면이 근거 줄을 하이라이트
 export interface Share { contributorId: string; percent: number; amount: Money; reasons: Reason[] }
 export interface Proposal {
   version: number; createdAt: string; by: 'ai' | 'rule'; model?: string; summary: string;
   shares: Share[]; changedBecause?: string; steps?: { tool: string; result: string }[];
 }
-export interface Dispute { id: string; contributorId: string; text: string; at: string; answeredInVersion?: number; answer?: string }
+export interface Dispute {
+  id: string; contributorId: string; text: string; at: string; answeredInVersion?: number; answer?: string;
+  /** 이의를 건 판 — 사람당 판마다 1번 */
+  onVersion?: number; addedEventIds?: string[];
+}
 export interface PayoutItem { contributorId: string; amount: Money; status: string; payoutItemId?: string; transactionId?: string }
 export interface Project {
   id: string; title: string; client: { name: string }; budget: Money; contributors: Contributor[]; log: LogEvent[];

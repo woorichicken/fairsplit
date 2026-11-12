@@ -1,16 +1,28 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Project } from '../shared/types';
-import { ApiError, fixtureFromUrl, getApi } from './api';
+import type { LogKind, Project } from '../shared/types';
+import { ApiError, fixtureFromUrl, getApi, type MissingWork } from './api';
+import { EXAMPLE_MISSING, EXAMPLE_WEAK } from './fixtures';
 import type { Navigate } from './App';
-import { formatMoney } from './format';
+import { formatMoney, KIND_LABEL } from './format';
 import { Activity, Avatar, LogPanel, Receipt, SplitCard, StatusBadge, Stepper, ThinkingCard, TopBar } from './parts';
 
 // Payouts 는 PENDING 으로 시작해 몇 초~몇 분 뒤 끝난다(12:30 실측) — 그동안 이 간격으로 refresh 한다
 const PAYOUT_POLL_MS = 2000;
 const DISPUTE_MAX = 500;
 // 「AI 가 근거 없는 이의는 받아 주지 않는다」를 보여 주는 예시(시연 데이터의 Jun 만) — 결과는 실제 AI 가 정한다
-const WEAK_DISPUTE_ID = 'jun';
-const WEAK_DISPUTE_TEXT = 'I should get 70% because editing is the hardest part.';
+// 예시는 실측 때 보낸 값과 같다(fixtures.ts EXAMPLE_* ← samples/story-*.json ← e2e/dispute-eval.mjs)
+const MISSING_KINDS: LogKind[] = ['recording', 'edit', 'revision', 'draft', 'asset'];
+
+interface MissingDraft { open: boolean; kind: LogKind; title: string; minutes: string; at: string }
+const EMPTY_MISSING: MissingDraft = { open: false, kind: 'recording', title: '', minutes: '', at: '' };
+
+/** ISO → <input type="datetime-local"> 값(보는 사람 시간대) */
+function toLocalInput(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 // 서버는 20초에 규칙 제안으로 넘어간다(계약서) — 15초가 지나면 「오래 걸린다」를 미리 말해 둔다
 const SLOW_AI_MS = 15_000;
 
@@ -35,6 +47,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
   const [viewerId, setViewerId] = useState('');
   const [highlight, setHighlight] = useState<string[]>([]);
   const [disputeText, setDisputeText] = useState('');
+  const [missing, setMissing] = useState<MissingDraft>(EMPTY_MISSING);
   const [slow, setSlow] = useState(false);
 
   // 첫 로드 — PayPal 에서 돌아온 경우(?paypal=return&token=<orderId>)면 fund/complete 를 먼저 부른다
@@ -126,7 +139,19 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
     const text = disputeText.trim();
     if (!text || !viewerId) return;
     setHighlight([]);
-    if (await act('dispute', () => api.dispute(id, viewerId, text))) setDisputeText('');
+    // 빠진 작업은 칸을 열고 제목을 쓴 경우에만 보낸다 — 검증(종류·시간·분)은 서버가 한다
+    const work: MissingWork | undefined =
+      missing.open && missing.title.trim()
+        ? { kind: missing.kind, title: missing.title.trim(), at: new Date(missing.at).toISOString(), ...(missing.minutes ? { minutes: Number(missing.minutes) } : {}) }
+        : undefined;
+    if (missing.open && missing.title.trim() && Number.isNaN(new Date(missing.at).getTime())) {
+      setActionError(new ApiError('BAD_MISSING_WORK', 'Missing work needs a date and time.', 400));
+      return;
+    }
+    if (await act('dispute', () => api.dispute(id, viewerId, text, work))) {
+      setDisputeText('');
+      setMissing(EMPTY_MISSING);
+    }
   }
 
   // ───────── 큰 상태: 로딩 · 오류 ─────────
@@ -167,7 +192,11 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
   const needsFunding = !project.order?.authorizationId && !moneyMoving;
   // 오류는 누른 버튼 가까이에 — 폰에서 화면 맨 위 알림은 안 보인다
   const showDecide = canDecide && !!viewer && !thinking;
-  const weakDisputer = project.contributors.find((c) => c.id === WEAK_DISPUTE_ID);
+  // 예시 버튼은 시연 데이터(그 사람이 있을 때)에만
+  const weakDisputer = project.contributors.find((c) => c.id === EXAMPLE_WEAK.contributorId);
+  const missingDisputer = project.contributors.find((c) => c.id === EXAMPLE_MISSING.contributorId);
+  // 사람당 판마다 1번 — 이 판에 이미 걸었거나 이 판이 자기 이의의 답이면 폼 대신 안내(서버도 409 DISPUTE_LIMIT)
+  const viewerDispute = viewer ? project.disputes.find((d) => d.contributorId === viewer.id && (d.onVersion === version || d.answeredInVersion === version)) : undefined;
   const n = project.log.length;
 
   return (
@@ -284,19 +313,45 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                     : `Waiting for ${waitingFor.map((c) => c.name).join(', ')}. PayPal sends money only when all ${project.contributors.length} approve. Switch “Viewing as” to act for someone else (demo only).`}
                 </p>
 
-                {weakDisputer && (
-                  <button
-                    type="button"
-                    className="btn btn-quiet try-weak"
-                    onClick={() => {
-                      setViewerId(weakDisputer.id);
-                      setDisputeText(WEAK_DISPUTE_TEXT);
-                    }}
-                    disabled={busy !== null}
-                  >
-                    Try a weak dispute (as {weakDisputer.name}) — does the AI give in?
-                  </button>
+                {(weakDisputer || missingDisputer) && (
+                  <div className="row try-row">
+                    {weakDisputer && (
+                      <button
+                        type="button"
+                        className="btn btn-quiet try-weak"
+                        onClick={() => {
+                          setViewerId(weakDisputer.id);
+                          setDisputeText(EXAMPLE_WEAK.text);
+                          setMissing(EMPTY_MISSING);
+                        }}
+                        disabled={busy !== null}
+                      >
+                        Try a weak dispute (as {weakDisputer.name})
+                      </button>
+                    )}
+                    {missingDisputer && (
+                      <button
+                        type="button"
+                        className="btn btn-quiet try-weak"
+                        onClick={() => {
+                          const w = EXAMPLE_MISSING.missingWork;
+                          setViewerId(missingDisputer.id);
+                          setDisputeText(EXAMPLE_MISSING.text);
+                          setMissing({ open: true, kind: w.kind, title: w.title, minutes: w.minutes === undefined ? '' : String(w.minutes), at: toLocalInput(w.at) });
+                        }}
+                        disabled={busy !== null}
+                      >
+                        Try adding missing work (as {missingDisputer.name})
+                      </button>
+                    )}
+                  </div>
                 )}
+                {viewerDispute ? (
+                  <p className="small muted dispute-used">
+                    {viewer.name} already {viewerDispute.onVersion === version ? `disputed v${version}` : `got an answer in v${version}`}. Each person gets one dispute per version
+                    — approve it, or wait until someone else’s dispute brings a new version.
+                  </p>
+                ) : (
                 <form
                   className="dispute"
                   onSubmit={(e) => {
@@ -315,11 +370,42 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                     onChange={(e) => setDisputeText(e.target.value)}
                     placeholder="e.g. My two re-recordings weren't counted."
                   />
+                  <details className="missing" open={missing.open} onToggle={(e) => setMissing((m) => ({ ...m, open: (e.target as HTMLDetailsElement).open }))}>
+                    <summary className="small">Add missing work (optional)</summary>
+                    <p className="small muted">
+                      It goes into the log marked “Added by {viewer.name} in a dispute”. The AI treats it as {viewer.name}’s own claim and checks it against the rest of the log.
+                    </p>
+                    <div className="missing-grid">
+                      <label className="field">
+                        <span className="small muted">Kind</span>
+                        <select value={missing.kind} onChange={(e) => setMissing((m) => ({ ...m, kind: e.target.value as LogKind }))} aria-label="Missing work kind">
+                          {MISSING_KINDS.map((k) => (
+                            <option key={k} value={k}>
+                              {KIND_LABEL[k]}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="field missing-title">
+                        <span className="small muted">What was done</span>
+                        <input value={missing.title} onChange={(e) => setMissing((m) => ({ ...m, title: e.target.value }))} maxLength={200} aria-label="Missing work title" />
+                      </label>
+                      <label className="field">
+                        <span className="small muted">Minutes</span>
+                        <input value={missing.minutes} onChange={(e) => setMissing((m) => ({ ...m, minutes: e.target.value }))} inputMode="numeric" aria-label="Missing work minutes" />
+                      </label>
+                      <label className="field">
+                        <span className="small muted">When</span>
+                        <input type="datetime-local" value={missing.at} onChange={(e) => setMissing((m) => ({ ...m, at: e.target.value }))} aria-label="Missing work time" />
+                      </label>
+                    </div>
+                  </details>
                   <button type="submit" className="btn" disabled={busy !== null || !disputeText.trim()}>
                     Send dispute
                   </button>
-                  <p className="small muted">The AI re-reads the log and proposes a new version. Approvals reset when the split changes.</p>
+                  <p className="small muted">The AI re-reads the log and proposes a new version. Shares change only if the log supports it. Approvals reset with every new version.</p>
                 </form>
+                )}
               </section>
             )}
 

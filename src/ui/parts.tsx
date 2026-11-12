@@ -79,7 +79,7 @@ export function LogPanel({ project, highlight }: { project: Project; highlight: 
       ) : (
         <ol className="log-list" ref={listRef}>
           {project.log.map((e) => (
-            <LogRow key={e.id} event={e} who={personName(project, e.actor)} on={highlight.includes(e.id)} />
+            <LogRow key={e.id} event={e} who={personName(project, e.actor)} on={highlight.includes(e.id)} addedByName={e.addedBy ? personName(project, e.addedBy) : undefined} />
           ))}
         </ol>
       )}
@@ -87,7 +87,7 @@ export function LogPanel({ project, highlight }: { project: Project; highlight: 
   );
 }
 
-function LogRow({ event, who, on }: { event: LogEvent; who: string; on: boolean }) {
+function LogRow({ event, who, on, addedByName }: { event: LogEvent; who: string; on: boolean; addedByName?: string }) {
   return (
     <li className={`log-row${on ? ' is-on' : ''}`} data-event-id={event.id} data-testid={`log-${event.id}`} data-highlight={on ? 'true' : 'false'}>
       <span className="log-id">{event.id}</span>
@@ -101,6 +101,9 @@ function LogRow({ event, who, on }: { event: LogEvent; who: string; on: boolean 
           {event.minutes ? ` · ${event.minutes} min` : ''}
         </div>
         {event.detail && <div className="small log-detail">{event.detail}</div>}
+        {event.source === 'dispute' && (
+          <span className="badge badge-rule added-by">Added by {addedByName ?? event.addedBy ?? who} in a dispute</span>
+        )}
       </div>
     </li>
   );

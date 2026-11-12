@@ -4,7 +4,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { Project } from '../src/shared/types';
 import { makeDemoProject, parseRecipients } from './demo';
 import { buildImportedProject, ImportError } from './importer';
-import { applyProposal, approve, assertCanFund, assertCanPropose, FlowError, invariantErrors, markCaptured, markFunded, markPaying, openDispute, startFunding, updatePayout } from './flow';
+import { applyProposal, approve, assertCanFund, assertCanPropose, FlowError, invariantErrors, markCaptured, markFunded, markPaying, openDispute, startFunding, updatePayout, type MissingWorkInput } from './flow';
 import { authorizeOrder, captureAuthorization, createOrder, createPayout, getPayout, PayPalError, type PayPalEnv } from './paypal';
 import { propose, type CreateFn } from './split';
 import { storeOf, type StoreEnv } from './store';
@@ -114,7 +114,8 @@ async function route(req: Request, env: Env, url: URL): Promise<Response> {
     }
     case '/disputes': {
       const b = await body(req);
-      openDispute(p, b.contributorId, b.text, `d${p.disputes.length + 1}`, at);
+      const missing = b.missingWork && typeof b.missingWork === 'object' ? (b.missingWork as MissingWorkInput) : null;
+      openDispute(p, b.contributorId, b.text, `d${p.disputes.length + 1}`, at, missing);
       await save(env, p); // 이의는 AI 가 죽어도 남아야 한다
       const { proposal } = await propose(p, nowIso(), claude(env));
       applyProposal(p, proposal, nowIso());

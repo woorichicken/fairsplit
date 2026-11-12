@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ApiError, fixtureFromUrl, getApi } from './api';
 import { NEW_PATH, type Navigate } from './App';
-import { recordedWeakProject } from './fixtures';
+import { recordedStoryProject } from './fixtures';
 import { previousProposal, SplitCard, TopBar } from './parts';
 
 const HOW_IT_WORKS = [
@@ -15,16 +15,16 @@ const noop = () => {};
 export function Landing({ navigate }: { navigate: Navigate }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // 첫 화면 미리보기 — 실제 Split card 컴포넌트에 기록된 AI 응답(v1 → v2)을 넣는다
-  // 첫 화면 미리보기 — 실제 Split card 컴포넌트에 기록된 AI 응답을 넣는다. 「근거 없는 이의엔 몫을 안 바꾼다」가 지금 서버의 실제 동작이라 그 기록을 쓴다
-  const preview = useMemo(() => recordedWeakProject(), []);
+  // 첫 화면 미리보기 — 실제 Split card 컴포넌트에 시연 이야기의 실측 응답을 넣는다(약한 이의는 그대로 · 빠진 작업을 붙인 이의로 몫 조정)
+  const preview = useMemo(() => recordedStoryProject(), []);
   const caption = useMemo(() => {
-    const d = preview.disputes.at(-1);
-    if (!d) return null;
-    const name = preview.contributors.find((c) => c.id === d.contributorId)?.name ?? d.contributorId;
+    const nameOf = (id: string) => preview.contributors.find((c) => c.id === id)?.name ?? id;
+    const [weak, missing] = preview.disputes;
     const before = previousProposal(preview);
-    const kept = !!before && preview.proposal!.shares.every((s) => before.shares.find((b) => b.contributorId === s.contributorId)?.percent === s.percent);
-    return { name, text: d.text, kept };
+    const moved = preview.proposal!.shares.find((s) => (before?.shares.find((b) => b.contributorId === s.contributorId)?.percent ?? s.percent) < s.percent);
+    if (!weak || !missing || !moved || !before) return null;
+    const was = before.shares.find((b) => b.contributorId === moved.contributorId)!.percent;
+    return { weak: nameOf(weak.contributorId), missing: nameOf(missing.contributorId), added: missing.addedEventIds?.[0], was, now: moved.percent };
   }, [preview]);
 
   async function start() {
@@ -71,8 +71,8 @@ export function Landing({ navigate }: { navigate: Navigate }) {
             <SplitCard project={preview} onEvidence={noop} activeEvidence={[]} compact />
             {caption && (
               <p className="small muted preview-caption">
-                A recorded AI answer: {caption.name} disputed with “{caption.text}” The AI checked the log
-                {caption.kept ? ', found no work the split had missed, and kept every share.' : ' and revised the split.'}
+                Recorded AI answers from the demo: {caption.weak} asked for 70% with no new evidence — no change. {caption.missing} added missing work
+                to the log ({caption.added}, marked as added in a dispute) — {caption.was}% → {caption.now}%.
               </p>
             )}
           </div>

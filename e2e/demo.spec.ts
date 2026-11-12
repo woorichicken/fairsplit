@@ -1,10 +1,15 @@
 import { expect, test, type Page } from '@playwright/test';
-import { fixtureProject } from '../src/ui/fixtures';
+import { EXAMPLE_MISSING, fixtureProject } from '../src/ui/fixtures';
 
 // 시연 경로 — 발표 때 누를 그 순서 그대로. 서버 없이 fixture(?fixture=v1)로 v1 → 이의 → v2 → 전원 동의 → paid 까지 간다.
 // fixture 숫자는 S1 이 실제 Claude 로 받은 응답(Sora 19% → 23%)이다 — 기대값도 그 기록에서 읽는다.
 const V1 = fixtureProject('v1');
-const V2 = fixtureProject('v2');
+const FINAL = fixtureProject('v2'); // 이야기 끝(v3)
+const PRE_MISSING = { ...FINAL, proposal: FINAL.history.at(-1)! }; // v2(약한 이의 뒤)
+const ADDED_ID = EXAMPLE_ADDED_ID();
+function EXAMPLE_ADDED_ID(): string {
+  return FINAL.log.find((e) => e.source === 'dispute')!.id;
+}
 const sharePct = (p: typeof V1, id: string) => p.proposal!.shares.find((s) => s.contributorId === id)!.percent;
 const shareUsd = (p: typeof V1, id: string) => `$${p.proposal!.shares.find((s) => s.contributorId === id)!.amount.value}`;
 const SHOT_DIR = process.env.S2_SHOT_DIR;
@@ -18,44 +23,49 @@ async function shot(page: Page, name: string) {
   if (SHOT_DIR) await page.screenshot({ path: `${SHOT_DIR}/s2r2-state-${name}.png` });
 }
 
-test('v1 → dispute → v2 → everyone approves → PayPal sends → receipt', async ({ page }) => {
+test('demo story: v1 → weak dispute (no change) → missing work (Sora up) → everyone approves → PayPal sends', async ({ page }) => {
   await page.goto('/p/sample?fixture=v1');
   await expect(page.getByRole('heading', { name: /Spring launch short/ })).toBeVisible();
-
   const sora = page.getByTestId('share-sora');
   await expect(sora).toContainText(`${sharePct(V1, 'sora')}%`);
   await expect(sora).toContainText(shareUsd(V1, 'sora'));
 
-  // Sora 로 보고 이의를 건다 → AI 가 다시 읽는 중 → v2
-  await page.getByLabel('Viewing as').selectOption('sora');
-  await page.getByLabel(/Something missing\? Tell the AI/).fill("My two re-recordings weren't counted.");
+  // 1) Jun 약한 이의 → 몫 그대로 + No change 배지
+  await page.getByRole('button', { name: 'Try a weak dispute (as Jun)' }).click();
   await page.getByRole('button', { name: 'Send dispute' }).click();
   await expect(page.getByText(`Re-reading ${V1.log.length} log events`)).toBeVisible();
+  await expect(page.getByRole('note', { name: 'AI answer to Jun' })).toContainText('No change — the log doesn’t support this claim');
+  await expect(sora).toContainText(`${sharePct(V1, 'sora')}%`);
+  // Jun 은 이 판(자기 이의의 답)에 다시 못 건다
+  await expect(page.getByText(/Jun already got an answer in v2/)).toBeVisible();
 
-  await expect(page.getByRole('heading', { name: /Proposed split/ })).toContainText('v2');
-  await expect(sora).toContainText(`${sharePct(V2, 'sora')}%`);
-  await expect(sora).toContainText(`${sharePct(V1, 'sora')}% → ${sharePct(V2, 'sora')}%`);
-  await expect(page.getByRole('note', { name: /What changed from v1/ })).toContainText('re-recordings');
+  // 2) Sora 가 빠진 작업을 붙여 이의 → 로그에 「Added by Sora in a dispute」 줄 · Sora 오름
+  await page.getByRole('button', { name: 'Try adding missing work (as Sora)' }).click();
+  await expect(page.getByLabel('Missing work title')).toHaveValue(EXAMPLE_MISSING.missingWork.title);
+  await page.getByRole('button', { name: 'Send dispute' }).click();
+  await expect(page.getByRole('heading', { name: /Proposed split/ })).toContainText(`v${FINAL.proposal!.version}`);
+  await expect(sora).toContainText(`${sharePct(PRE_MISSING, 'sora')}% → ${sharePct(FINAL, 'sora')}%`);
+  await expect(page.getByRole('note', { name: /What changed from v2/ })).toContainText(ADDED_ID);
+  const addedRow = page.getByTestId(`log-${ADDED_ID}`);
+  await expect(addedRow).toContainText('Added by Sora in a dispute');
 
-  // 근거 칩을 누르면 왼쪽 로그 줄이 밝아진다
-  await expect(page.getByTestId('log-e10')).toHaveAttribute('data-highlight', 'false');
-  await sora.getByRole('button', { name: /e10 · Re-recording 1/ }).click();
-  await expect(page.getByTestId('log-e10')).toHaveAttribute('data-highlight', 'true');
-  await expect(page.getByTestId('log-e12')).toHaveAttribute('data-highlight', 'true');
-  await expect(page.getByTestId('log-e02')).toHaveAttribute('data-highlight', 'false');
+  // 근거 칩을 누르면 그 줄이 밝아진다
+  const chip = sora.getByRole('button', { name: new RegExp(`^${ADDED_ID} ·`) }).first();
+  if (await chip.count()) {
+    await chip.click();
+    await expect(addedRow).toHaveAttribute('data-highlight', 'true');
+  }
 
-  // 사람별로 동의 — 마지막 동의에서 PayPal 이 보낸다
+  // 3) 사람별로 동의 — 마지막 동의에서 PayPal 이 보낸다
   await approveAs(page, 'mina', 'Mina');
-  await expect(page.getByText('✓ Mina approved v2.')).toBeVisible();
+  await expect(page.getByText(`✓ Mina approved v${FINAL.proposal!.version}.`)).toBeVisible();
   await approveAs(page, 'jun', 'Jun');
   await approveAs(page, 'sora', 'Sora');
   await expect(page.getByRole('heading', { name: 'PayPal is sending 3 payouts…' })).toBeVisible();
-
   await expect(page.getByRole('heading', { name: 'Payout receipt' })).toBeVisible({ timeout: 10_000 });
   const soraPayout = page.getByTestId('payout-sora');
-  await expect(soraPayout).toContainText(shareUsd(V2, 'sora'));
+  await expect(soraPayout).toContainText(shareUsd(FINAL, 'sora'));
   await expect(soraPayout).toContainText('Sent');
-  await expect(soraPayout).toContainText('SAMPLE-ITEM-3');
   await expect(page.getByRole('list', { name: 'Progress' }).getByRole('listitem').last()).toHaveClass(/step-done/);
 });
 
@@ -64,7 +74,8 @@ test('Landing shows a real split card and Try the demo opens the project', async
   const preview = page.getByRole('region', { name: 'Example split' });
   await expect(preview).toContainText('AI proposal');
   await expect(preview).toContainText('Recorded example');
-  await expect(page.getByText(/A recorded AI answer: Jun disputed .* kept every share\./)).toBeVisible();
+  await expect(page.getByText(/Recorded AI answers from the demo: Jun asked for 70% with no new evidence — no change\. Sora added missing work/)).toBeVisible();
+  await expect(preview).toContainText(`${sharePct(PRE_MISSING, 'sora')}% → ${sharePct(FINAL, 'sora')}%`);
   await page.getByRole('button', { name: 'Try the demo' }).click();
   await expect(page).toHaveURL(/\/p\/sample\?fixture=v1$/);
   await expect(page.getByTestId('share-mina')).toBeVisible();
@@ -172,7 +183,7 @@ test('Use your own log: server problems are listed line by line', async ({ page 
 
 test('weak dispute: the AI answer is shown next to the split', async ({ page }) => {
   await page.goto('/p/sample?fixture=v1');
-  await page.getByRole('button', { name: /Try a weak dispute \(as Jun\)/ }).click();
+  await page.getByRole('button', { name: 'Try a weak dispute (as Jun)' }).click();
   await expect(page.getByLabel('Viewing as')).toHaveValue('jun');
   await expect(page.getByLabel(/Something missing\? Tell the AI/)).toHaveValue('I should get 70% because editing is the hardest part.');
   await page.getByRole('button', { name: 'Send dispute' }).click();

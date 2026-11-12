@@ -122,3 +122,48 @@ describe('상태 기계', () => {
     expect(p.events.at(-1)!.text).toBe('PayPal finished the payout batch. 2 of 3 payouts are waiting for the receiver to claim them.');
   });
 });
+
+describe('이의 — 빠진 작업 · 판마다 1번 (5회차)', () => {
+  const proposed = () => {
+    const p = funded();
+    applyProposal(p, ruleProposal(p, 1, NOW), NOW);
+    return p;
+  };
+  const MISSING = { kind: 'recording', title: 'Re-recording 3 — pickup lines for the closing line', minutes: 22, at: '2026-11-06T15:20:00Z' };
+
+  it('빠진 작업은 로그 끝에 source dispute · addedBy 로 붙고, 이의가 그 id 를 기억한다', () => {
+    const p = proposed();
+    const d = openDispute(p, 'sora', "Re-recording 3 wasn't logged.", 'd1', NOW, MISSING);
+    const added = p.log.at(-1)!;
+    expect(added).toMatchObject({ id: 'e16', actor: 'sora', kind: 'recording', minutes: 22, source: 'dispute', addedBy: 'sora' });
+    expect(d).toMatchObject({ onVersion: 1, addedEventIds: ['e16'] });
+    expect(p.events.at(-1)!.text).toContain('added missing work to the log (e16');
+    expect(invariantErrors(p)).toEqual([]);
+  });
+
+  it('잘못된 빠진 작업은 400 이고 로그·이의는 그대로', () => {
+    const p = proposed();
+    for (const bad of [{ ...MISSING, kind: 'approval' }, { ...MISSING, title: ' ' }, { ...MISSING, at: 'yesterday' }, { ...MISSING, minutes: 9999 }]) {
+      expect(code(() => openDispute(p, 'sora', 'x', 'd1', NOW, bad))).toBe('BAD_MISSING_WORK');
+    }
+    expect(p.log).toHaveLength(15);
+    expect(p.disputes).toHaveLength(0);
+  });
+
+  it('같은 사람은 같은 판에 한 번만 — 두 번째는 DISPUTE_LIMIT, 다음 판에선 다시 된다', () => {
+    const p = proposed();
+    openDispute(p, 'jun', 'I should get 70%.', 'd1', NOW);
+    applyProposal(p, ruleProposal(p, 2, NOW), NOW);
+    // v2 에서 jun 은 다시 걸 수 있고, sora 도 건다
+    openDispute(p, 'sora', 'x', 'd2', NOW);
+    applyProposal(p, ruleProposal(p, 3, NOW), NOW);
+    // v3 은 sora 이의의 답 — sora 는 v3 에 다시 못 걸고, jun·mina 는 걸 수 있다
+    expect(code(() => openDispute(p, 'sora', 'again', 'd3', NOW))).toBe('DISPUTE_LIMIT');
+    expect(code(() => openDispute(p, 'mina', 'mine', 'd3', NOW))).toBeUndefined();
+    const q = proposed();
+    openDispute(q, 'jun', 'first', 'd1', NOW);
+    q.status = 'proposed'; // AI 답을 기다리지 않고 같은 판에 다시 거는 경우
+    expect(code(() => openDispute(q, 'jun', 'again', 'd2', NOW))).toBe('DISPUTE_LIMIT');
+    expect(code(() => openDispute(q, 'sora', 'mine', 'd2', NOW))).toBeUndefined();
+  });
+});

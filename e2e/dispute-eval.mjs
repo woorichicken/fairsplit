@@ -1,53 +1,62 @@
-// 이의 실측 — 실제 Claude 가 도는 서버(로컬 wrangler dev 권장)에 시연 프로젝트를 새로 만들고 제안 → 이의를 N번 돌린다.
-// 약한 이의(Jun 70%)는 몫이 그대로여야, 강한 이의(Sora 재녹음 2회)는 Sora 가 올라야 통과다.
-//   node e2e/dispute-eval.mjs <apiOrigin> <out.json> [runs=3]
+// 이의 실측 — 실제 Claude 가 도는 서버(로컬 wrangler dev 권장)에서 시연 이야기를 N번 돌린다(5회차).
+//   1) AI v1 → 2) Jun 약한 이의(몫 그대로여야) → 3) Sora 가 빠진 작업을 붙인 이의(Sora 가 올라야) → 4) Jun 이 같은 판에 또 이의(409 DISPUTE_LIMIT 여야)
+//   node e2e/dispute-eval.mjs <apiOrigin> <out.json> [runs=3] [snapshotDir]
+// snapshotDir 를 주면 1번째 실행의 단계별 Project 를 story-1.json(v1)·story-2.json(약한 이의 뒤)·story-3.json(빠진 작업 뒤) 로 남긴다(화면 fixture 용).
 import { writeFileSync } from 'node:fs';
 
-const [api = 'http://127.0.0.1:8790', out = 'test-results/disputes.json', runsArg = '3'] = process.argv.slice(2);
+const [api = 'http://127.0.0.1:8790', out = 'test-results/disputes.json', runsArg = '3', snapshotDir] = process.argv.slice(2);
 const RUNS = Number(runsArg);
-function STRONG_EVIDENCE_TEXT() {
-  return 'The client asked twice for a warmer voice (e08, e12). Each re-recording (e10, e12) redid the whole voiceover, and the final cut was approved on that voice (e15). v1 counts my minutes like any other minutes, not as client-requested rework that redid the deliverable.';
-}
-const CASES = [
-  { name: 'weak', contributorId: 'jun', text: 'I should get 70% because editing is the hardest part.', expect: 'unchanged' },
-  { name: 'strong', contributorId: 'sora', text: "My two re-recordings weren't counted.", expect: 'sora-up' },
-  // 로그 줄을 짚는 이의 — 「셌다/안 셌다」가 아니라 무게(재작업·영향)를 근거 줄로 다툰다
-  { name: 'strong-evidence', contributorId: 'sora', text: STRONG_EVIDENCE_TEXT(), expect: 'sora-up' },
-].filter((c) => !process.env.CASES || process.env.CASES.split(',').includes(c.name));
+const WEAK = { contributorId: 'jun', text: 'I should get 70% because editing is the hardest part.' };
+// 날짜는 로그와 맞아야 한다 — e12(재녹음 2, 11-06 14:00Z) 뒤 · e13(최종 편집, 11-06 17:30Z) 앞. 지시문 예시(11-08)는 의뢰인 최종 승인(e15, 11-07) 뒤라 AI 가 모순으로 거절했다(5회차 1차 실측).
+const MISSING = {
+  contributorId: 'sora',
+  text: "Re-recording 3 wasn't logged: after Re-recording 2 (e12) I recorded pickup lines for the closing line, and they went into the final cut (e13).",
+  missingWork: { kind: 'recording', title: 'Re-recording 3 — pickup lines for the closing line', minutes: 22, at: '2026-11-06T15:20:00Z' },
+};
 
 async function call(method, path, body) {
   const res = await fetch(`${api}${path}`, { method, headers: body ? { 'content-type': 'application/json' } : undefined, body: body ? JSON.stringify(body) : undefined });
   const data = await res.json();
-  if (!res.ok) throw new Error(`${method} ${path} → ${res.status} ${JSON.stringify(data)}`);
-  return data;
+  return { status: res.status, data };
+}
+async function ok(method, path, body) {
+  const r = await call(method, path, body);
+  if (r.status >= 400) throw new Error(`${method} ${path} → ${r.status} ${JSON.stringify(r.data)}`);
+  return r.data;
 }
 const pct = (proposal) => Object.fromEntries(proposal.shares.map((s) => [s.contributorId, s.percent]));
+const same = (a, b) => Object.keys(a).every((k) => a[k] === b[k]);
 
 const rows = [];
-for (const c of CASES) {
-  for (let run = 1; run <= RUNS; run += 1) {
-    const p0 = await call('POST', '/api/demo/reset', { scenario: 'brand-short' });
-    let t = Date.now();
-    const p1 = await call('POST', `/api/projects/${p0.id}/propose`);
-    const proposeMs = Date.now() - t;
-    t = Date.now();
-    const p2 = await call('POST', `/api/projects/${p0.id}/disputes`, { contributorId: c.contributorId, text: c.text });
-    const disputeMs = Date.now() - t;
-    const v1 = pct(p1.proposal);
-    const v2 = pct(p2.proposal);
-    const unchanged = Object.keys(v1).every((k) => v1[k] === v2[k]);
-    const pass = c.expect === 'unchanged' ? unchanged : v2.sora > v1.sora;
-    const row = {
-      case: c.name, run, projectId: p0.id, pass,
-      v1, v2, v1By: p1.proposal.by, v2By: p2.proposal.by,
-      answer: p2.proposal.changedBecause ?? null,
-      rejectedSubmits: (p2.proposal.steps ?? []).filter((s) => String(s.result).startsWith('rejected')).map((s) => s.result),
-      proposeMs, disputeMs,
-    };
-    rows.push(row);
-    console.log(`${c.name} #${run} ${pass ? 'PASS' : 'FAIL'} v1=${JSON.stringify(v1)} v2=${JSON.stringify(v2)} by=${row.v2By} ${disputeMs}ms rejected=${row.rejectedSubmits.length}`);
+for (let run = 1; run <= RUNS; run += 1) {
+  const p0 = await ok('POST', '/api/demo/reset', { scenario: 'brand-short' });
+  const id = p0.id;
+  const p1 = await ok('POST', `/api/projects/${id}/propose`);
+  let t = Date.now();
+  const p2 = await ok('POST', `/api/projects/${id}/disputes`, WEAK);
+  const weakMs = Date.now() - t;
+  t = Date.now();
+  const p3 = await ok('POST', `/api/projects/${id}/disputes`, MISSING);
+  const missingMs = Date.now() - t;
+  // v3 은 Sora 이의에 대한 답 — Sora 가 또 걸면 409 DISPUTE_LIMIT 여야
+  const again = await call('POST', `/api/projects/${id}/disputes`, { contributorId: 'sora', text: 'One more time.' });
+  const [v1, v2, v3] = [pct(p1.proposal), pct(p2.proposal), pct(p3.proposal)];
+  const added = p3.log.find((e) => e.source === 'dispute');
+  const row = {
+    run, projectId: id,
+    weak: { pass: same(v1, v2), v1, v2, by: p2.proposal.by, answer: p2.proposal.changedBecause ?? null, ms: weakMs },
+    missing: { pass: v3.sora > v2.sora, v2, v3, by: p3.proposal.by, answer: p3.proposal.changedBecause ?? null, addedEvent: added ?? null, citesAdded: added ? new RegExp(`\\b${added.id}\\b`).test(p3.proposal.changedBecause ?? '') : false, ms: missingMs },
+    limit: { pass: again.status === 409 && again.data?.error?.code === 'DISPUTE_LIMIT', status: again.status, code: again.data?.error?.code, message: again.data?.error?.message },
+  };
+  rows.push(row);
+  console.log(`#${run} weak ${row.weak.pass ? 'PASS' : 'FAIL'} ${JSON.stringify(v1)}→${JSON.stringify(v2)} · missing ${row.missing.pass ? 'PASS' : 'FAIL'} →${JSON.stringify(v3)} cites ${added?.id}=${row.missing.citesAdded} · limit ${row.limit.pass ? 'PASS' : 'FAIL'} ${row.limit.status}`);
+  if (snapshotDir && run === 1) {
+    writeFileSync(`${snapshotDir}/story-1.json`, JSON.stringify(p1));
+    writeFileSync(`${snapshotDir}/story-2.json`, JSON.stringify(p2));
+    writeFileSync(`${snapshotDir}/story-3.json`, JSON.stringify(p3));
   }
 }
-const summary = Object.fromEntries(CASES.map((c) => [c.name, `${rows.filter((r) => r.case === c.name && r.pass).length}/${RUNS}`]));
-writeFileSync(out, JSON.stringify({ api, measuredAt: new Date().toISOString(), model: 'claude-sonnet-5-5 (server MODEL)', rule: 'weak → shares unchanged · strong → Sora up', summary, rows }, null, 2));
+const count = (k) => `${rows.filter((r) => r[k].pass).length}/${RUNS}`;
+const summary = { weakUnchanged: count('weak'), missingWorkSoraUp: count('missing'), secondDisputeBlocked: count('limit') };
+writeFileSync(out, JSON.stringify({ api, measuredAt: new Date().toISOString(), server: 'local wrangler dev + real Claude (MODEL in worker/split.ts)', summary, weakDispute: WEAK, missingWorkDispute: MISSING, rows }, null, 2));
 console.log('summary', JSON.stringify(summary));

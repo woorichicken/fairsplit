@@ -1,4 +1,4 @@
-// 공유 카드(og.png 1200×630) — 색은 src/styles/tokens.css 에서 읽고, 숫자는 기록된 AI 응답(samples/recorded-v2.json)에서 읽는다.
+// 공유 카드(og.png 1200×630) — 색은 src/styles/tokens.css 에서 읽고, 숫자는 기록된 AI 응답(samples/story-3.json)에서 읽는다.
 // 쓰는 법: `node e2e/make-og.mjs public/og.png` (heavy-run --short 로 감싼다)
 import { readFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
@@ -11,7 +11,7 @@ const token = (name) => {
   return value;
 };
 const mark = readFileSync('public/logo/mark.svg', 'utf8');
-const v2 = JSON.parse(readFileSync('src/ui/samples/recorded-v2.json', 'utf8'));
+const v2 = JSON.parse(readFileSync('src/ui/samples/story-3.json', 'utf8')); // 시연 이야기 끝(5회차 실측)
 const v1 = v2.history.find((p) => p.version === v2.proposal.version - 1);
 
 const rows = v2.proposal.shares
@@ -48,7 +48,7 @@ li span{grid-area:d;font-size:17px;font-weight:500;margin-top:4px}
 <h1>One PayPal payment, split by the work everyone actually did.</h1>
 <p>AI proposes each share with evidence. Anyone can dispute. PayPal sends the payouts when everyone agrees.</p></div>
 <div class="card"><div class="head"><strong>Proposed split v${v2.proposal.version}</strong><span class="badge">AI proposal</span></div>
-<ul>${rows}</ul><div class="foot">$${v2.budget.value} · recorded demo answer after a dispute</div></div>
+<ul>${rows}</ul><div class="foot">$${v2.budget.value} · recorded demo answer after disputes</div></div>
 </body></html>`;
 
 const browser = await chromium.launch();

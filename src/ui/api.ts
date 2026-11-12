@@ -1,4 +1,4 @@
-import type { Project } from '../shared/types';
+import type { LogKind, Project } from '../shared/types';
 import { createFixtureApi, FIXTURE_NAMES, type FixtureName } from './fixtures';
 
 /**
@@ -16,6 +16,14 @@ export interface NewProjectInput {
   csv: string;
 }
 
+/** 이의에 붙이는 「빠진 작업」 — 로그 끝에 source 'dispute' 로 들어간다(계약서 5회차) */
+export interface MissingWork {
+  kind: LogKind;
+  title: string;
+  minutes?: number;
+  at: string;
+}
+
 export interface Api {
   resetDemo(): Promise<Project>;
   createProject(input: NewProjectInput): Promise<Project>;
@@ -23,7 +31,7 @@ export interface Api {
   fund(id: string): Promise<FundStart>;
   completeFund(id: string, orderId: string): Promise<Project>;
   propose(id: string): Promise<Project>;
-  dispute(id: string, contributorId: string, text: string): Promise<Project>;
+  dispute(id: string, contributorId: string, text: string, missingWork?: MissingWork): Promise<Project>;
   approve(id: string, contributorId: string): Promise<Project>;
   refresh(id: string): Promise<Project>;
 }
@@ -71,7 +79,7 @@ const httpApi: Api = {
   fund: (id) => call<FundStart>('POST', `${project(id)}/fund`),
   completeFund: (id, orderId) => call<Project>('POST', `${project(id)}/fund/complete`, { orderId }),
   propose: (id) => call<Project>('POST', `${project(id)}/propose`),
-  dispute: (id, contributorId, text) => call<Project>('POST', `${project(id)}/disputes`, { contributorId, text }),
+  dispute: (id, contributorId, text, missingWork) => call<Project>('POST', `${project(id)}/disputes`, { contributorId, text, ...(missingWork ? { missingWork } : {}) }),
   approve: (id, contributorId) => call<Project>('POST', `${project(id)}/approve`, { contributorId }),
   refresh: (id) => call<Project>('POST', `${project(id)}/refresh`),
 };

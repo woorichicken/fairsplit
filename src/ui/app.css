@@ -180,6 +180,13 @@ h1, h2, p { margin: 0; }
 .decide { display: grid; gap: var(--s-3); }
 .btn-quiet { border-color: var(--hair); color: var(--ink-2); font: var(--t-small); }
 .try-weak { justify-self: start; min-height: var(--touch); text-align: left; }
+.try-row { margin-top: 0; }
+.dispute-used { padding-top: var(--s-3); border-top: 1px solid var(--hair); }
+.missing { width: 100%; display: grid; gap: var(--s-2); }
+.missing summary { cursor: pointer; color: var(--ink-2); min-height: var(--touch); display: flex; align-items: center; }
+.missing-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-2); }
+.missing select { width: 100%; min-height: var(--touch); padding: 0 var(--s-3); border-radius: var(--r-m); border: 1px solid var(--line); background: var(--surface); }
+.added-by { margin-top: var(--s-1); white-space: normal; }
 .dispute-answer { margin: var(--s-1) 0 0; color: var(--ink-2); }
 .approvals { margin: 0 0 var(--s-2); }
 .fund-row { display: grid; gap: var(--s-2); justify-items: start; margin-top: var(--s-3); }
@@ -193,7 +200,7 @@ h1, h2, p { margin: 0; }
 .import-row { grid-template-columns: minmax(0, 1fr); }
 .field { display: grid; gap: var(--s-1); min-width: 0; }
 .field input, .csv {
-  width: 100%; min-height: var(--touch); padding: 0 var(--s-3); border-radius: var(--r-m); border: 1px solid var(--line); background: var(--surface); font: var(--t-body);
+  width: 100%; min-width: 0; min-height: var(--touch); padding: 0 var(--s-3); border-radius: var(--r-m); border: 1px solid var(--line); background: var(--surface); font: var(--t-body);
 }
 .field input:focus-visible, .csv:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .csv { padding: var(--s-3); font: var(--t-label); line-height: 1.6; resize: vertical; white-space: pre; overflow-x: auto; }
@@ -250,4 +257,7 @@ code, .tool { overflow-wrap: anywhere; }
   .import-row { grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr) minmax(0, 1fr); }
   .person { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr) auto; align-items: end; }
   .fund-row { grid-template-columns: auto minmax(0, 1fr); align-items: center; }
+  /* 제목은 한 줄 전체, 아래 줄에 종류·분·시각 — datetime 칸이 좁으면 카드 밖으로 밀린다 */
+  .missing-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 0.7fr) minmax(0, 1.5fr); }
+  .missing-title { grid-column: 1 / -1; order: -1; }
 }

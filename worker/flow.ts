@@ -1,6 +1,6 @@
 // 상태 기계 — 순수 함수만 둔다(PayPal·AI·저장 없음). 그래서 유닛 테스트로 전이 규칙을 다 볼 수 있다.
 // 전이 밖 호출은 FlowError(409). index.ts 가 이걸 { error: { code, message } } 로 바꾼다.
-import type { Dispute, PayoutItem, Project, Proposal, ProjectStatus } from '../src/shared/types';
+import type { Dispute, LogEvent, LogKind, PayoutItem, Project, Proposal, ProjectStatus } from '../src/shared/types';
 
 export class FlowError extends Error {
   constructor(public code: string, message: string, public status = 409) {
@@ -68,15 +68,50 @@ export function applyProposal(p: Project, proposal: Proposal, at: string): void 
   }
 }
 
-export function openDispute(p: Project, contributorId: unknown, text: unknown, id: string, at: string): Dispute {
+/** 이의로 붙일 수 있는 일의 종류 — 의뢰인 몫(brief·review_comment·approval)은 기여자가 붙일 수 없다 */
+export const MISSING_WORK_KINDS: readonly LogKind[] = ['draft', 'revision', 'recording', 'edit', 'asset'];
+const MAX_MISSING_MINUTES = 24 * 60;
+const MAX_MISSING_TITLE = 200;
+
+export interface MissingWorkInput { kind?: unknown; title?: unknown; minutes?: unknown; at?: unknown }
+
+/** 이의에 붙은 「빠진 작업」을 로그 줄로 — 당사자 주장이므로 source 'dispute' · addedBy 로 표시한다 */
+function missingWorkEvent(p: Project, cid: string, raw: MissingWorkInput): LogEvent {
+  const kind = String(raw.kind ?? '') as LogKind;
+  if (!MISSING_WORK_KINDS.includes(kind)) throw new FlowError('BAD_MISSING_WORK', `Missing work kind must be one of ${MISSING_WORK_KINDS.join(', ')}.`, 400);
+  const title = String(raw.title ?? '').trim().slice(0, MAX_MISSING_TITLE);
+  if (!title) throw new FlowError('BAD_MISSING_WORK', 'Missing work needs a short title.', 400);
+  const when = new Date(String(raw.at ?? ''));
+  if (Number.isNaN(when.getTime())) throw new FlowError('BAD_MISSING_WORK', 'Missing work needs a date and time.', 400);
+  let minutes: number | undefined;
+  if (raw.minutes !== undefined && raw.minutes !== null && raw.minutes !== '') {
+    minutes = Number(raw.minutes);
+    if (!Number.isInteger(minutes) || minutes < 0 || minutes > MAX_MISSING_MINUTES) throw new FlowError('BAD_MISSING_WORK', `Minutes must be a whole number from 0 to ${MAX_MISSING_MINUTES}.`, 400);
+  }
+  // 다음 번호 — 시연(e01..)·가져오기(e01..) 둘 다 e+두 자리 꼴이다
+  const next = p.log.reduce((n, e) => Math.max(n, Number(/^e(\d+)$/.exec(e.id)?.[1] ?? 0)), 0) + 1;
+  return { id: `e${String(next).padStart(2, '0')}`, at: when.toISOString(), actor: cid, kind, title, ...(minutes !== undefined ? { minutes } : {}), source: 'dispute', addedBy: cid };
+}
+
+export function openDispute(p: Project, contributorId: unknown, text: unknown, id: string, at: string, missing?: MissingWorkInput | null): Dispute {
   if (p.status !== 'proposed' || !p.proposal) throw new FlowError('BAD_STATE', `Disputes are only open while a proposal is waiting (now ${p.status}).`);
   const cid = contributorOrThrow(p, contributorId);
+  const version = p.proposal.version;
+  // 사람당 판마다 1번 — 이의를 거듭 걸어 남의 동의를 계속 비우는 지연을 막는다(5회차).
+  // 이의마다 새 판이 생기므로 「같은 판에 또」만 막으면 효과가 없다 → 자기 이의에 대한 답으로 나온 판에도 다시 못 건다.
+  const mine = p.disputes.find((d) => d.contributorId === cid && (d.onVersion === version || d.answeredInVersion === version));
+  if (mine) {
+    const why = mine.onVersion === version ? `already disputed v${version}` : `got an answer to their dispute in v${version}`;
+    throw new FlowError('DISPUTE_LIMIT', `${name(p, cid)} ${why}. Each person gets one dispute per version — approve it, or wait until someone else's dispute brings a new version.`);
+  }
   const body = String(text ?? '').trim();
   if (!body) throw new FlowError('EMPTY_DISPUTE', 'Write what you think is wrong.', 400);
-  const dispute: Dispute = { id, contributorId: cid, text: body.slice(0, MAX_DISPUTE_CHARS), at };
+  const added = missing ? missingWorkEvent(p, cid, missing) : undefined;
+  const dispute: Dispute = { id, contributorId: cid, text: body.slice(0, MAX_DISPUTE_CHARS), at, onVersion: version, ...(added ? { addedEventIds: [added.id] } : {}) };
+  if (added) p.log.push(added);
   p.disputes.push(dispute);
   p.status = 'disputed';
-  log(p, at, `${name(p, cid)} disputed v${p.proposal.version}: “${dispute.text}”`);
+  log(p, at, `${name(p, cid)} disputed v${version}: “${dispute.text}”${added ? ` and added missing work to the log (${added.id}: ${added.title}).` : ''}`);
   return dispute;
 }
 
