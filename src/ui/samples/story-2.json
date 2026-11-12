@@ -1,1 +1,397 @@
-{"id":"d9cc1f23a2d0","title":"Spring launch short — Moonbrew Coffee","client":{"name":"Moonbrew Coffee"},"budget":{"value":"600.00","currency":"USD"},"contributors":[{"id":"mina","name":"Mina","role":"Scriptwriter","avatar":"M","paypalEmail":"mina.fairsplit@example.com"},{"id":"jun","name":"Jun","role":"Video editor","avatar":"J","paypalEmail":"jun.fairsplit@example.com"},{"id":"sora","name":"Sora","role":"Voice actor","avatar":"S","paypalEmail":"sora.fairsplit@example.com"}],"log":[{"id":"e01","at":"2026-11-02T09:00:00Z","actor":"client","kind":"brief","title":"Brief: 30-second spring launch short for Moonbrew Coffee","detail":"Vertical 1080x1920, warm and cozy mood, subtitles on, voiceover required."},{"id":"e02","at":"2026-11-02T13:10:00Z","actor":"mina","kind":"draft","title":"Script v1","detail":"Three-scene script with a 4-line voiceover.","minutes":90},{"id":"e03","at":"2026-11-02T16:40:00Z","actor":"client","kind":"review_comment","title":"Script feedback: intro is too long, end on the spring blend","detail":"Cut the first scene in half and close on the product shot."},{"id":"e04","at":"2026-11-03T10:05:00Z","actor":"mina","kind":"revision","title":"Script v2","detail":"Shorter intro, new closing line.","minutes":45},{"id":"e05","at":"2026-11-03T14:30:00Z","actor":"mina","kind":"revision","title":"Script v3 (final)","detail":"Tightened voiceover to fit 28 seconds.","minutes":30},{"id":"e06","at":"2026-11-04T10:00:00Z","actor":"sora","kind":"recording","title":"Voiceover recording, take 1","detail":"Full script, 3 takes, best take delivered.","minutes":40},{"id":"e07","at":"2026-11-04T15:20:00Z","actor":"jun","kind":"edit","title":"Edit cut 1","detail":"First assembly with voiceover and music.","minutes":120},{"id":"e08","at":"2026-11-05T09:30:00Z","actor":"client","kind":"review_comment","title":"Cut 1 feedback: subtitles overflow 2 lines, voice feels too flat","detail":"Subtitles should stay on one line. Client asked for a warmer tone in the voiceover."},{"id":"e09","at":"2026-11-05T13:00:00Z","actor":"jun","kind":"edit","title":"Edit cut 2: subtitles fixed to one line","minutes":60},{"id":"e10","at":"2026-11-05T16:00:00Z","actor":"sora","kind":"recording","title":"Re-recording 1","detail":"Client asked for warmer tone. Re-recorded the full voiceover.","minutes":18},{"id":"e11","at":"2026-11-06T10:15:00Z","actor":"jun","kind":"edit","title":"Edit cut 3: new voiceover synced","minutes":45},{"id":"e12","at":"2026-11-06T14:00:00Z","actor":"sora","kind":"recording","title":"Re-recording 2","detail":"Client asked for warmer tone again on the closing line. Re-recorded the full voiceover.","minutes":18},{"id":"e13","at":"2026-11-06T17:30:00Z","actor":"jun","kind":"edit","title":"Edit cut 4 (final)","detail":"Final voiceover synced, color pass.","minutes":30},{"id":"e14","at":"2026-11-07T09:00:00Z","actor":"jun","kind":"asset","title":"Exported master file 1080x1920","minutes":10},{"id":"e15","at":"2026-11-07T11:00:00Z","actor":"client","kind":"approval","title":"Client approved the final cut"}],"status":"proposed","history":[{"version":1,"createdAt":"2026-11-12T05:11:37.007Z","by":"ai","model":"claude-sonnet-5-5","summary":"Split follows time spent, with a small lift for Sora for two client-requested re-recordings. Jun did the most hours across four cuts.","shares":[{"contributorId":"mina","percent":32,"reasons":[{"text":"Wrote the script and two revisions after client feedback on length and ending.","eventIds":["e02","e03","e04","e05"]}],"amount":{"value":"192.00","currency":"USD"}},{"contributorId":"jun","percent":50,"reasons":[{"text":"Most time: four cuts, including the subtitle fix the client asked for.","eventIds":["e07","e08","e09","e11","e13"]},{"text":"Color pass and master export.","eventIds":["e13","e14"]}],"amount":{"value":"300.00","currency":"USD"}},{"contributorId":"sora","percent":18,"reasons":[{"text":"Recorded the voiceover, then re-recorded twice for a warmer tone as the client asked.","eventIds":["e06","e08","e10","e12"]}],"amount":{"value":"108.00","currency":"USD"}}],"steps":[{"tool":"list_log_events","result":"list_log_events() → 15 events: e01, e02, e03, e04, e05, e06, e07, e08, e09, e10, e11, e12, e13, e14, e15"},{"tool":"get_disputes","result":"get_disputes() → 0 open"},{"tool":"submit_proposal","result":"mina 32%, jun 50%, sora 18%"}]}],"disputes":[{"id":"d1","contributorId":"jun","text":"I should get 70% because editing is the hardest part.","at":"2026-11-12T05:11:42.835Z","onVersion":1,"answeredInVersion":2,"answer":"No change: Jun's dispute says editing is the hardest part and asks for 70%. That is a claim about difficulty and a demanded number, not new work in the log. Jun's four cuts, subtitle fix, color pass and export (e07, e09, e11, e13, e14, about 265 minutes) were already counted in the 50% share, which is already the largest."}],"approvals":{},"events":[{"at":"2026-11-12T05:11:36.997Z","text":"Project created with the demo production log (15 events)."},{"at":"2026-11-12T05:11:42.828Z","text":"AI (claude-sonnet-5-5) proposed split v1 from the production log."},{"at":"2026-11-12T05:11:42.835Z","text":"Jun disputed v1: “I should get 70% because editing is the hardest part.”"},{"at":"2026-11-12T05:11:48.673Z","text":"AI (claude-sonnet-5-5) revised the split to v2. Approvals were reset."}],"proposal":{"version":2,"createdAt":"2026-11-12T05:11:42.837Z","by":"ai","model":"claude-sonnet-5-5","summary":"Jun did the most hours and shaped the final video, Mina wrote the script and two revisions, and Sora recorded the voiceover and redid it twice at the client's request. The split is unchanged from v1.","shares":[{"contributorId":"mina","percent":32,"reasons":[{"text":"Wrote the script and two revisions after client feedback on length and ending.","eventIds":["e02","e03","e04","e05"]}],"amount":{"value":"192.00","currency":"USD"}},{"contributorId":"jun","percent":50,"reasons":[{"text":"Most time: four cuts, including the subtitle fix the client asked for.","eventIds":["e07","e08","e09","e11","e13"]},{"text":"Color pass and master export.","eventIds":["e13","e14"]}],"amount":{"value":"300.00","currency":"USD"}},{"contributorId":"sora","percent":18,"reasons":[{"text":"Recorded the voiceover, then re-recorded twice for a warmer tone as the client asked.","eventIds":["e06","e08","e10","e12"]}],"amount":{"value":"108.00","currency":"USD"}}],"changedBecause":"No change: Jun's dispute says editing is the hardest part and asks for 70%. That is a claim about difficulty and a demanded number, not new work in the log. Jun's four cuts, subtitle fix, color pass and export (e07, e09, e11, e13, e14, about 265 minutes) were already counted in the 50% share, which is already the largest.","steps":[{"tool":"list_log_events","result":"list_log_events() → 15 events: e01, e02, e03, e04, e05, e06, e07, e08, e09, e10, e11, e12, e13, e14, e15"},{"tool":"get_disputes","result":"get_disputes() → 1 open"},{"tool":"submit_proposal","result":"mina 32%, jun 50%, sora 18%"}]}}
+{
+  "id": "0b8e5bd102a5",
+  "title": "Spring launch short — Moonbrew Coffee",
+  "client": {
+    "name": "Moonbrew Coffee"
+  },
+  "budget": {
+    "value": "600.00",
+    "currency": "USD"
+  },
+  "contributors": [
+    {
+      "id": "mina",
+      "name": "Mina",
+      "role": "Scriptwriter",
+      "avatar": "M",
+      "paypalEmail": "mina.fairsplit@example.com"
+    },
+    {
+      "id": "jun",
+      "name": "Jun",
+      "role": "Video editor",
+      "avatar": "J",
+      "paypalEmail": "jun.fairsplit@example.com"
+    },
+    {
+      "id": "sora",
+      "name": "Sora",
+      "role": "Voice actor",
+      "avatar": "S",
+      "paypalEmail": "sora.fairsplit@example.com"
+    }
+  ],
+  "log": [
+    {
+      "id": "e01",
+      "at": "2026-11-02T09:00:00Z",
+      "actor": "client",
+      "kind": "brief",
+      "title": "Brief: 30-second spring launch short for Moonbrew Coffee",
+      "detail": "Vertical 1080x1920, warm and cozy mood, subtitles on, voiceover required."
+    },
+    {
+      "id": "e02",
+      "at": "2026-11-02T13:10:00Z",
+      "actor": "mina",
+      "kind": "draft",
+      "title": "Script v1",
+      "detail": "Three-scene script with a 4-line voiceover.",
+      "minutes": 90
+    },
+    {
+      "id": "e03",
+      "at": "2026-11-02T16:40:00Z",
+      "actor": "client",
+      "kind": "review_comment",
+      "title": "Script feedback: intro is too long, end on the spring blend",
+      "detail": "Cut the first scene in half and close on the product shot."
+    },
+    {
+      "id": "e04",
+      "at": "2026-11-03T10:05:00Z",
+      "actor": "mina",
+      "kind": "revision",
+      "title": "Script v2",
+      "detail": "Shorter intro, new closing line.",
+      "minutes": 45
+    },
+    {
+      "id": "e05",
+      "at": "2026-11-03T14:30:00Z",
+      "actor": "mina",
+      "kind": "revision",
+      "title": "Script v3 (final)",
+      "detail": "Tightened voiceover to fit 28 seconds.",
+      "minutes": 30
+    },
+    {
+      "id": "e06",
+      "at": "2026-11-04T10:00:00Z",
+      "actor": "sora",
+      "kind": "recording",
+      "title": "Voiceover recording, take 1",
+      "detail": "Full script, 3 takes, best take delivered.",
+      "minutes": 40
+    },
+    {
+      "id": "e07",
+      "at": "2026-11-04T15:20:00Z",
+      "actor": "jun",
+      "kind": "edit",
+      "title": "Edit cut 1",
+      "detail": "First assembly with voiceover and music.",
+      "minutes": 120
+    },
+    {
+      "id": "e08",
+      "at": "2026-11-05T09:30:00Z",
+      "actor": "client",
+      "kind": "review_comment",
+      "title": "Cut 1 feedback: subtitles overflow 2 lines, voice feels too flat",
+      "detail": "Subtitles should stay on one line. Client asked for a warmer tone in the voiceover."
+    },
+    {
+      "id": "e09",
+      "at": "2026-11-05T13:00:00Z",
+      "actor": "jun",
+      "kind": "edit",
+      "title": "Edit cut 2: subtitles fixed to one line",
+      "minutes": 60
+    },
+    {
+      "id": "e10",
+      "at": "2026-11-05T16:00:00Z",
+      "actor": "sora",
+      "kind": "recording",
+      "title": "Re-recording 1",
+      "detail": "Client asked for warmer tone. Re-recorded the full voiceover.",
+      "minutes": 18
+    },
+    {
+      "id": "e11",
+      "at": "2026-11-06T10:15:00Z",
+      "actor": "jun",
+      "kind": "edit",
+      "title": "Edit cut 3: new voiceover synced",
+      "minutes": 45
+    },
+    {
+      "id": "e12",
+      "at": "2026-11-06T14:00:00Z",
+      "actor": "sora",
+      "kind": "recording",
+      "title": "Re-recording 2",
+      "detail": "Client asked for warmer tone again on the closing line. Re-recorded the full voiceover.",
+      "minutes": 18
+    },
+    {
+      "id": "e13",
+      "at": "2026-11-06T17:30:00Z",
+      "actor": "jun",
+      "kind": "edit",
+      "title": "Edit cut 4 (final)",
+      "detail": "Final voiceover synced, color pass.",
+      "minutes": 30
+    },
+    {
+      "id": "e14",
+      "at": "2026-11-07T09:00:00Z",
+      "actor": "jun",
+      "kind": "asset",
+      "title": "Exported master file 1080x1920",
+      "minutes": 10
+    },
+    {
+      "id": "e15",
+      "at": "2026-11-07T11:00:00Z",
+      "actor": "client",
+      "kind": "approval",
+      "title": "Client approved the final cut"
+    }
+  ],
+  "status": "proposed",
+  "history": [
+    {
+      "version": 1,
+      "createdAt": "2026-11-12T05:30:47.307Z",
+      "by": "ai",
+      "model": "claude-sonnet-5-5",
+      "summary": "Split follows time spent and client-driven rework: Jun spent the most time on four cuts and export, Mina wrote the script through three versions, and Sora recorded the voiceover three times.",
+      "shares": [
+        {
+          "contributorId": "mina",
+          "percent": 33,
+          "reasons": [
+            {
+              "text": "Wrote the script and shaped the story and voiceover; 165 minutes over three versions.",
+              "eventIds": [
+                "e02",
+                "e04",
+                "e05"
+              ]
+            },
+            {
+              "text": "Revised after client asked for a shorter intro and a product-shot close.",
+              "eventIds": [
+                "e03",
+                "e04"
+              ]
+            }
+          ],
+          "amount": {
+            "value": "198.00",
+            "currency": "USD"
+          }
+        },
+        {
+          "contributorId": "jun",
+          "percent": 47,
+          "reasons": [
+            {
+              "text": "Most time on the job: four edit cuts plus export, 265 minutes.",
+              "eventIds": [
+                "e07",
+                "e09",
+                "e11",
+                "e13",
+                "e14"
+              ]
+            },
+            {
+              "text": "Fixed subtitle overflow and re-synced new voiceovers after client feedback.",
+              "eventIds": [
+                "e08",
+                "e09",
+                "e11"
+              ]
+            }
+          ],
+          "amount": {
+            "value": "282.00",
+            "currency": "USD"
+          }
+        },
+        {
+          "contributorId": "sora",
+          "percent": 20,
+          "reasons": [
+            {
+              "text": "Recorded the voiceover and delivered the best take.",
+              "eventIds": [
+                "e06"
+              ]
+            },
+            {
+              "text": "Re-recorded the full voiceover twice for a warmer tone as the client asked.",
+              "eventIds": [
+                "e08",
+                "e10",
+                "e12"
+              ]
+            }
+          ],
+          "amount": {
+            "value": "120.00",
+            "currency": "USD"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "tool": "list_log_events",
+          "result": "list_log_events() → 15 events: e01, e02, e03, e04, e05, e06, e07, e08, e09, e10, e11, e12, e13, e14, e15"
+        },
+        {
+          "tool": "get_disputes",
+          "result": "get_disputes() → 0 open"
+        },
+        {
+          "tool": "submit_proposal",
+          "result": "mina 33%, jun 47%, sora 20%"
+        }
+      ]
+    }
+  ],
+  "disputes": [
+    {
+      "id": "d1",
+      "contributorId": "jun",
+      "text": "I should get 70% because editing is the hardest part.",
+      "at": "2026-11-12T05:31:08.490Z",
+      "onVersion": 1,
+      "answeredInVersion": 2,
+      "answer": "No change: Jun's dispute asks for 70% because editing is hard, which is a claim about difficulty and a demand for a number, not evidence. I checked Jun's events e07, e09, e11, e13, e14 (265 minutes) and the subtitle and re-sync work in e08, e09, e11. The v1 split already counted all of it, and Jun already has the largest share."
+    }
+  ],
+  "approvals": {},
+  "events": [
+    {
+      "at": "2026-11-12T05:29:50.930Z",
+      "text": "Project created with the demo production log (15 events)."
+    },
+    {
+      "at": "2026-11-12T05:30:54.076Z",
+      "text": "AI (claude-sonnet-5-5) proposed split v1 from the production log."
+    },
+    {
+      "at": "2026-11-12T05:31:08.490Z",
+      "text": "Jun disputed v1: “I should get 70% because editing is the hardest part.”"
+    },
+    {
+      "at": "2026-11-12T05:31:15.073Z",
+      "text": "AI (claude-sonnet-5-5) revised the split to v2. Approvals were reset."
+    }
+  ],
+  "proposal": {
+    "version": 2,
+    "createdAt": "2026-11-12T05:31:08.536Z",
+    "by": "ai",
+    "model": "claude-sonnet-5-5",
+    "summary": "Split stays the same: Jun has the most time and rework, Mina shaped the script through three versions, and Sora re-recorded twice at the client's request.",
+    "shares": [
+      {
+        "contributorId": "mina",
+        "percent": 33,
+        "reasons": [
+          {
+            "text": "Wrote the script and shaped the story and voiceover; 165 minutes over three versions.",
+            "eventIds": [
+              "e02",
+              "e04",
+              "e05"
+            ]
+          },
+          {
+            "text": "Revised after client asked for a shorter intro and a product-shot close.",
+            "eventIds": [
+              "e03",
+              "e04"
+            ]
+          }
+        ],
+        "amount": {
+          "value": "198.00",
+          "currency": "USD"
+        }
+      },
+      {
+        "contributorId": "jun",
+        "percent": 47,
+        "reasons": [
+          {
+            "text": "Most time on the job: four edit cuts plus export, 265 minutes.",
+            "eventIds": [
+              "e07",
+              "e09",
+              "e11",
+              "e13",
+              "e14"
+            ]
+          },
+          {
+            "text": "Fixed subtitle overflow and re-synced new voiceovers after client feedback.",
+            "eventIds": [
+              "e08",
+              "e09",
+              "e11"
+            ]
+          }
+        ],
+        "amount": {
+          "value": "282.00",
+          "currency": "USD"
+        }
+      },
+      {
+        "contributorId": "sora",
+        "percent": 20,
+        "reasons": [
+          {
+            "text": "Recorded the voiceover and delivered the best take.",
+            "eventIds": [
+              "e06"
+            ]
+          },
+          {
+            "text": "Re-recorded the full voiceover twice for a warmer tone as the client asked.",
+            "eventIds": [
+              "e08",
+              "e10",
+              "e12"
+            ]
+          }
+        ],
+        "amount": {
+          "value": "120.00",
+          "currency": "USD"
+        }
+      }
+    ],
+    "changedBecause": "No change: Jun's dispute asks for 70% because editing is hard, which is a claim about difficulty and a demand for a number, not evidence. I checked Jun's events e07, e09, e11, e13, e14 (265 minutes) and the subtitle and re-sync work in e08, e09, e11. The v1 split already counted all of it, and Jun already has the largest share.",
+    "steps": [
+      {
+        "tool": "list_log_events",
+        "result": "list_log_events() → 15 events: e01, e02, e03, e04, e05, e06, e07, e08, e09, e10, e11, e12, e13, e14, e15"
+      },
+      {
+        "tool": "get_disputes",
+        "result": "get_disputes() → 1 open"
+      },
+      {
+        "tool": "submit_proposal",
+        "result": "mina 33%, jun 47%, sora 20%"
+      }
+    ]
+  }
+}

@@ -6,8 +6,8 @@ import story3 from './samples/story-3.json' with { type: 'json' };
 
 /**
  * 가짜 흐름 — 서버 없이 화면·E2E·캡처를 돌리려고 둔다. `?fixture=draft|v1|v2|paid` 로 켠다.
- * 분배 숫자는 지어내지 않았다: samples/story-*.json 은 5회차 규칙의 서버(로컬 wrangler dev + 실제 Claude)에서 시연 이야기를
- * 그대로 돌린 응답이다(team/evidence/s2r5-disputes.json 1번째 실행):
+ * 분배 숫자는 지어내지 않았다: samples/story-*.json 은 운영(fairsplit.solhun.com)에서 시연 영상을 찍은 실제 실행
+ * (프로젝트 0b8e5bd102a5, 실제 Claude · 실제 PayPal 샌드박스)의 판들을 그대로 옮겼다 — 영상·랜딩·영수증 숫자를 하나로(품질 r2, 11-12):
  *   story-1 = AI v1 · story-2 = Jun 약한 이의 뒤 v2(몫 그대로) · story-3 = Sora 가 빠진 작업(e16)을 붙인 이의 뒤 v3(Sora 오름).
  * 결제·송금 부분(order·payout id)만 「SAMPLE-」 가짜다. 화면 위에는 「Sample data」 배지가 뜬다.
  * fixture 이름 'v2' 는 「이의 두 개가 끝난 판」(story-3, v3)이다 — 캡처·E2E 가 쓰던 이름을 유지한다.

@@ -211,7 +211,8 @@ test('real paid project: no Sample badge, PayPal IDs and unclaimed explained', a
   await expect(page.getByRole('heading', { name: 'Payout receipt' })).toBeVisible();
   await expect(page.getByText('Sample data')).toHaveCount(0);
   for (const id of ['43510105SL835515C', '07C37982KW8841448', '07C28288056195432', 'X62XZ7LSPKK3Y', 'TX0', 'ITEM2']) await expect(page.getByText(id)).toBeVisible();
-  await expect(page.getByTestId('payout-sora')).toContainText('Unclaimed: PayPal emailed a claim link (receiver has no sandbox account)');
+  await expect(page.getByTestId('payout-sora')).toContainText('Sent · PayPal is holding it until the receiver claims it');
+  await expect(page.getByText(/emails a claim link \(status UNCLAIMED\)/)).toBeVisible();
 });
 
 test('fund step tells the honor period and the sandbox test card', async ({ page }) => {

@@ -61,7 +61,7 @@ export function payoutStatusLabel(status: string): string {
     case 'ONHOLD':
       return 'Sending…';
     case 'UNCLAIMED':
-      return 'Unclaimed: PayPal emailed a claim link (receiver has no sandbox account)';
+      return 'Sent · PayPal is holding it until the receiver claims it';
     case 'FAILED':
     case 'BLOCKED':
     case 'DENIED':
