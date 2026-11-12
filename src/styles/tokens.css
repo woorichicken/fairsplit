@@ -95,6 +95,7 @@
   --t-card-amount: 600 32px/36px var(--font);           /* [레퍼런스] Cash App 카드 안 $980.00 · $320.00 */
   --t-pass-name: 700 22px/26px var(--font);             /* [레퍼런스] Wallet 패스 왼쪽 이름(DUNKIN' · DELTA) */
   --t-pass-label: 600 11px/14px var(--font);            /* [레퍼런스] Wallet 패스 오른쪽 위 BALANCE · MEMBER # */
+  --m-fade: 64px;            /* [레퍼런스] iOS 하단 바 위 흐려지는 높이 — 글이 버튼 아래로 계속된다고 읽히는 최소(fix3 지시 64px+) */
   --cta-h: 56px;              /* [레퍼런스] Cash App 「Download Cash App」 알약 높이 */
   --ring-1: #6f9bff;          /* [결정] 고리 구간·목록 점 = 사람별 색. fix2(r4 심사): 파랑 3단은 구간이 안 갈려 보였다 → 색상 셋(파랑·청록·분홍).
                                  Wallet 패스 3색(--pass-*)과 같은 계열을 검은 면 위에서 밝게 */

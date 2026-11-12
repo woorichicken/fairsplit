@@ -256,7 +256,8 @@ code, .tool { overflow-wrap: anywhere; }
 @media (max-width: 700px) {
   /* ── 공통 앱 문법: 회색 앱 바탕 · 내비게이션 바 · large title · inset grouped · 아래 고정 알약 버튼 ── */
   body { background: var(--m-canvas); }
-  html { scroll-padding-bottom: calc(var(--cta-h) + var(--s-6)); }
+  :root { --m-bar-h: calc(var(--m-fade) + var(--cta-h) + var(--s-4) + env(safe-area-inset-bottom, 0px)); }
+  html { scroll-padding-bottom: var(--m-bar-h); }
   .topbar { height: 52px; background: var(--m-canvas); border-bottom: 0; }
   .wordmark img { height: var(--s-5); }
   /* 프로젝트 화면 위 띠는 앱의 뒤로가기 자리 — 로고가 이미 홈 링크라 그 앞에 ‹ 만 그린다(글자는 aria-label 이 말한다) */
@@ -282,23 +283,30 @@ code, .tool { overflow-wrap: anywhere; }
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 12h15m-6-7 7 7-7 7' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
   }
   .money-cta:hover:not(:disabled), .hero-cta .btn-primary:hover:not(:disabled) { background: var(--m-dark-2); }
-  /* fix2(r4 심사): 고정 버튼이 설명 문단을 문장 중간에서 잘랐다 → 버튼 뒤에 바탕색 면을 깔아 글이 위에서 흐려지며 끝나게(앱 하단 바).
-     버튼이 있는 화면에서만 · 누름은 통과 · 스크롤 끝 여백은 .project padding-bottom 이 맡는다 */
+  /* 고정 버튼 뒤 하단 바 — 위 64px 는 투명 → 바탕색 그라데이션, 그 아래는 바탕색. 글이 「버튼 아래로 계속된다」로 읽히게(iOS 하단 바).
+     fix3: 랜딩에 쓰던 backdrop-filter 는 운영 빌드(CSS 압축)가 -webkit- 판만 남겨 Chromium 에서 사라졌다 → 색 그라데이션만 쓴다.
+     누름은 통과 · 스크롤 끝 여백(--m-bar-h)은 .project·.landing padding-bottom 이 맡는다 */
   .page:has(.money-cta)::after, .page:has(.landing)::after {
     content: ''; position: fixed; z-index: 2; left: 0; right: 0; bottom: 0; pointer-events: none;
-    height: calc(var(--cta-h) + var(--s-6) * 2 + env(safe-area-inset-bottom, 0px));
-    background: linear-gradient(to bottom, transparent, var(--m-canvas) 45%);
+    height: var(--m-bar-h); background: linear-gradient(to bottom, transparent, var(--m-canvas) var(--m-fade));
   }
-  /* 랜딩은 버튼 뒤가 파란 면이었다가 회색 바탕이 된다 — 한 색으로 덮지 않고 흐리게(iOS 하단 바) */
-  .page:has(.landing)::after {
-    background: transparent; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-    mask-image: linear-gradient(to bottom, transparent, black 45%);
-  }
+  .page:has(.landing)::after { background: linear-gradient(to bottom, transparent, var(--accent) var(--m-fade)); }
 
   /* ── M-1 랜딩 = Cash App 랜딩: 가장자리까지 꽉 찬 색 면 · 큰 제목 · 폰 안 흰 카드 쌓기 · 아래 고정 알약 ── */
   .page:has(.landing) .topbar { background: var(--accent); }
   .page:has(.landing) .wordmark img { filter: brightness(0) invert(1); }
-  .landing { padding: 0 0 calc(var(--cta-h) + var(--s-6) * 2); gap: var(--s-5); }
+  /* fix3: 랜딩은 페이지 전체를 브랜드 색 면으로 — 하단 바(파랑)가 어느 스크롤 위치에서도 바탕과 같은 색이 된다 */
+  .page:has(.landing) {
+    background: var(--accent);
+    /* 랜딩 첫 화면은 버튼 바로 위까지 카드다 — 흐려지는 높이를 24px 로 줄여 Sora 카드를 덮지 않게(버튼 뒤엔 파란 바탕만) */
+    --m-fade: 24px; --m-bar-h: calc(var(--m-fade) + var(--cta-h) + var(--s-4) + env(safe-area-inset-bottom, 0px));
+  }
+  .landing { padding: 0 0 calc(var(--m-bar-h) + var(--s-2)); gap: var(--s-5); }
+  .page .hero-caption { color: var(--on-brand-2); }
+  .how { border-top-color: var(--on-brand-line); }
+  .how-num { border-color: var(--on-brand-line); color: var(--on-brand-2); }
+  .how-title { color: var(--on-accent); }
+  .how .muted { color: var(--on-brand-2); }
   .hero { gap: var(--s-5); }
   .hero-preview, .hero-caption, .how { margin: 0 var(--s-4); width: auto; }
   .hero-copy {
@@ -309,7 +317,8 @@ code, .tool { overflow-wrap: anywhere; }
   .landing-title { order: 1; font: var(--t-cash-hero); letter-spacing: -0.035em; color: var(--on-accent); }
   /* fix2(r4 심사): 카드 묶음이 설명·버튼 아래(630px~)에 있어 고정 「Try the demo」가 Mina $192.00 을 가렸다 →
      제목 바로 아래로 올려 세 장이 첫 화면 버튼 위에서 끝나게 한다 */
-  .hero-shares { order: 2; }
+  /* fix3: 첫 화면(844)은 카드 묶음에서 끝난다 — 다음 문단은 버튼 자리 아래(접힌 곳)에서 시작해 버튼 옆으로 「p…」가 삐져나오지 않게 */
+  .hero-shares { order: 2; } /* 아래 여백은 폰 모양 틀 규칙의 margin(버튼 높이 + 16) */
   .hero-copy .landing-lead { order: 3; color: var(--on-accent); font: var(--t-subtitle); }
   .hero-cta { order: 4; width: 100%; }
   .hero-copy > .muted { order: 5; color: var(--on-brand-2); padding-bottom: var(--s-5); }
@@ -317,10 +326,10 @@ code, .tool { overflow-wrap: anywhere; }
   .hero-cta .btn:not(.btn-primary) { width: 100%; min-height: var(--cta-h); border-radius: var(--r-pill); background: transparent; border: 1.5px solid var(--on-accent); color: var(--on-accent); }
   /* 폰 모양 틀 — Cash App 은 색 면 아래쪽에 앱 화면(흰 둥근 위 모서리 · 회색 바탕 · 흰 카드)을 반쯤 걸쳐 보여 준다 */
   .hero-shares {
-    display: grid; gap: var(--s-2); margin: 0; padding: var(--s-4) var(--s-3) var(--s-3);
+    display: grid; gap: var(--s-2); margin: 0 0 calc(var(--cta-h) + var(--s-4)); padding: var(--s-3) var(--s-3) var(--s-2);
     border-radius: var(--r-sheet); background: var(--m-canvas); color: var(--ink); box-shadow: var(--m-shadow-lift);
   }
-  .hero-shares .money-kicker { font: var(--t-small); font-weight: 500; color: var(--ink-2); padding: 0 var(--s-2); }
+  .hero-shares .money-kicker { font: var(--t-small); font-size: 13px; font-weight: 500; color: var(--ink-2); padding: var(--s-1) var(--s-2) 0; }
   .hero-shares .money-kicker::after { content: none; }
   .hero-shares .money-shares { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
   .hero-shares .money-share {
@@ -338,7 +347,7 @@ code, .tool { overflow-wrap: anywhere; }
   .hero-preview .card { box-shadow: var(--m-shadow-card); }
 
   /* ── 프로젝트 공통 — large title · inset grouped 「Viewing as」 · 한 장짜리 진행 카드 ── */
-  .project { gap: var(--s-4); padding: var(--s-2) var(--s-4) calc(var(--cta-h) + var(--s-6) * 2); }
+  .project { gap: var(--s-4); padding: var(--s-2) var(--s-4) calc(var(--m-bar-h) + var(--s-2)); }
   .project-head { align-items: stretch; gap: var(--s-4); }
   .project-title { font: var(--t-largetitle); letter-spacing: -0.02em; margin-top: var(--s-1); }
   .viewer {
@@ -379,14 +388,14 @@ code, .tool { overflow-wrap: anywhere; }
 
   /* M-3 결정 = Cash App Distribute paycheck: 검은 면 · 조각 사이 틈이 있는 고리 · 가운데 큰 숫자 · 점 목록 */
   .money-hero-proposed, .money-hero-disputed {
-    padding: var(--s-5) var(--s-4) var(--s-4); background: var(--m-dark); color: var(--on-accent); box-shadow: var(--m-shadow-lift);
+    padding: var(--s-4) var(--s-4) var(--s-3); background: var(--m-dark); color: var(--on-accent); box-shadow: var(--m-shadow-lift);
   }
   .money-hero-proposed::after, .money-hero-disputed::after { content: none; }
-  .money-hero-proposed .money-kicker, .money-hero-disputed .money-kicker { display: block; min-height: 0; margin: 0; font: var(--t-largetitle); font-size: 24px; color: var(--on-accent); }
+  .money-hero-proposed .money-kicker, .money-hero-disputed .money-kicker { display: block; min-height: 0; margin: 0; font: var(--t-largetitle); font-size: 22px; line-height: 28px; color: var(--on-accent); }
   .money-hero-proposed .money-kicker::after, .money-hero-disputed .money-kicker::after { content: none; }
   .money-hero-proposed .money-total, .money-hero-disputed .money-total {
-    position: relative; justify-self: center; display: grid; place-items: center; width: 184px; height: 184px; margin: var(--s-3) 0 var(--s-2);
-    font: var(--t-card-amount); letter-spacing: -0.03em;
+    position: relative; justify-self: center; display: grid; place-items: center; width: 148px; height: 148px; margin: var(--s-3) 0 var(--s-2);
+    font: var(--t-card-amount); font-size: 26px; letter-spacing: -0.03em;
   }
   .money-hero-proposed .money-total::before, .money-hero-disputed .money-total::before {
     content: ''; position: absolute; inset: 0; border-radius: var(--r-pill);
@@ -395,13 +404,13 @@ code, .tool { overflow-wrap: anywhere; }
       var(--ring-2) 0 calc(var(--p2) - 1.2%), transparent 0 var(--p2),
       var(--ring-3) 0 98.8%, transparent 0
     );
-    mask: radial-gradient(farthest-side, transparent calc(100% - 13px), black calc(100% - 12px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 11px), black calc(100% - 10px));
   }
-  .money-hero-proposed .money-line, .money-hero-disputed .money-line { color: var(--on-dark-2); text-align: center; padding: 0 var(--s-2); }
+  .money-hero-proposed .money-line, .money-hero-disputed .money-line { color: var(--on-dark-2); text-align: center; font-size: 13px; line-height: 18px; }
   .money-hero-proposed .money-shares, .money-hero-disputed .money-shares { margin-top: var(--s-2); border-top: 1px solid var(--on-brand-line); }
   .money-hero-proposed .money-share, .money-hero-disputed .money-share {
     display: grid; grid-template-columns: 12px minmax(0, 1fr) auto auto; align-items: center; gap: var(--s-3);
-    min-height: 44px; border-bottom: 1px solid var(--on-brand-line);
+    min-height: 40px; border-bottom: 1px solid var(--on-brand-line);
   }
   .money-hero-proposed .money-share::before, .money-hero-disputed .money-share::before { content: ''; width: 12px; height: 12px; border-radius: var(--r-pill); background: var(--ring-1); }
   .money-hero-proposed .money-share:nth-child(2)::before, .money-hero-disputed .money-share:nth-child(2)::before { background: var(--ring-2); }
