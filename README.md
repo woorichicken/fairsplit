@@ -29,13 +29,26 @@ threads and spreadsheets. It's slow, it's awkward, and the person who did the in
 | 4. Agree | Each contributor approves the current version; a new version resets approvals | — |
 | 5. Pay | Capture the authorization, then one Payouts batch to all contributors | `POST /v2/payments/authorizations/{id}/capture` · `POST /v1/payments/payouts` |
 
+Money safety: PayPal keeps an authorization valid for up to 29 days (with a 3-day honor period). FairSplit captures
+only after everyone agrees; if agreement takes longer than that, the client would need to re-authorize.
+
 Guardrails: shares must sum to exactly 100% and to the budget to the cent (server computes amounts,
 not the model); every reason must cite real log events; if the model fails or times out, a transparent
 rule-based proposal (labelled **Rule-based fallback**) keeps the flow working.
 
 ## Try it
 
-_Hosted demo URL: (added at submission)_
+**Live demo: https://fairsplit.solhun.com** (PayPal sandbox — no real money moves)
+
+### Pay the demo yourself (judges)
+
+1. Open the live demo → **Try the demo** → **Fund with PayPal (sandbox)**.
+2. On the PayPal sandbox page choose **Pay with debit or credit card**.
+3. Set the country to **United States** (the demo merchant is a Korean sandbox account, and PayPal does not allow KR→KR payments).
+4. Card **4005 5192 0000 0004** (an official PayPal sandbox test Visa), any future expiry, any 3-digit CVV, any US address. Turn off "create account".
+5. You come back to FairSplit with the job **Funded**. Ask the AI to propose, dispute as one contributor, approve as all three, and watch PayPal send the Payouts batch.
+
+No account or login is needed.
 
 ### Run locally
 
@@ -71,7 +84,7 @@ account (Developer Dashboard → Testing Tools → Sandbox Accounts).
 
 ## What was built during the hackathon
 
-Everything in this repository was created during the submission period (Nov 12, 2026).
+Everything in this repository was created during the submission period, on Nov 12, 2026 — see the commit history.
 
 ## License
 
