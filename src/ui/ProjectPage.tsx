@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import type { LogKind, Project } from '../shared/types';
 import { ApiError, fixtureFromUrl, getApi, type MissingWork } from './api';
 import { EXAMPLE_MISSING, EXAMPLE_WEAK } from './fixtures';
 import type { Navigate } from './App';
 import { formatMoney, KIND_LABEL, plainText } from './format';
-import { Activity, Avatar, LogPanel, Receipt, SplitCard, StatusBadge, Stepper, ThinkingCard, TopBar } from './parts';
+import { Activity, Avatar, LogPanel, Receipt, SplitCard, STATUS_LABEL, StatusBadge, Stepper, ThinkingCard, TopBar } from './parts';
 
 // Payouts 는 PENDING 으로 시작해 몇 초~몇 분 뒤 끝난다(12:30 실측) — 그동안 이 간격으로 refresh 한다
 const PAYOUT_POLL_MS = 2000;
@@ -506,30 +506,41 @@ function heroLine(project: Project, waitingFor: number): { kicker: string; line:
   const funded = !!project.order?.authorizationId;
   const total = project.contributors.length;
   const version = project.proposal?.version ?? 0;
+  // 제목(kicker)은 배지와 같은 상태 이름 — 결제 여부는 제목이 아니라 아래 줄에서 말한다
+  const kicker = STATUS_LABEL[project.status];
   switch (project.status) {
     case 'paid':
-      return { kicker: 'Paid', line: `PayPal sent all ${total} shares in one Payouts batch.` };
+      return { kicker, line: `PayPal sent all ${total} shares in one Payouts batch.` };
     case 'agreed':
     case 'paying':
-      return { kicker: 'Everyone agreed', line: 'PayPal is capturing the payment and sending the payouts.' };
+      return { kicker, line: 'PayPal is capturing the payment and sending the payouts.' };
     case 'proposed':
     case 'disputed':
       return {
-        kicker: funded ? 'Held on PayPal' : 'Waiting for PayPal funding',
-        line: `AI split v${version} · ${total - waitingFor} of ${total} approved. Money moves only when all ${total} agree.`,
+        kicker,
+        line: `AI split v${version} · ${total - waitingFor} of ${total} approved. ${funded ? 'Held on PayPal.' : 'Not funded on PayPal yet.'} Money moves only when all ${total} agree.`,
       };
     case 'funded':
-      return { kicker: 'Held on PayPal', line: 'Authorized, not captured. Next, the AI reads the log and proposes a split.' };
+      return { kicker, line: 'Held on PayPal. Authorized, not captured. Next, the AI reads the log and proposes a split.' };
     default:
-      return { kicker: 'Waiting for PayPal funding', line: `${project.client.name} pays on PayPal first. Nobody is paid until everyone agrees.` };
+      return { kicker, line: `${project.client.name} pays on PayPal first. Nobody is paid until everyone agrees.` };
   }
+}
+
+// 폰 결정 화면의 나눔 고리(Cash App Distribute paycheck) — 조각 경계를 누적 %로 CSS 변수에 넘긴다(--p1 = 첫 사람 끝, --p2 = 둘째 끝).
+// 색·두께는 app.css 가 정한다. 데스크톱은 요약 칸 자체가 숨겨져 영향 없다.
+function ringStops(shares: readonly { percent: number }[]): CSSProperties | undefined {
+  if (shares.length === 0) return undefined;
+  const first = shares[0]!.percent;
+  const second = first + (shares[1]?.percent ?? 0);
+  return { '--p1': `${first}%`, '--p2': `${second}%` } as CSSProperties;
 }
 
 function MoneyHero({ project, waitingFor, busy, action }: { project: Project; waitingFor: number; busy: Busy; action: HeroAction }) {
   const { kicker, line } = heroLine(project, waitingFor);
   const shares = project.proposal?.shares ?? [];
   return (
-    <section className={`money-hero money-hero-${project.status}`} aria-label="Summary">
+    <section className={`money-hero money-hero-${project.status}`} aria-label="Summary" style={ringStops(shares)}>
       <p className="money-kicker">{kicker}</p>
       <p className="money-total">{formatMoney(project.budget)}</p>
       <p className="money-line">{line}</p>

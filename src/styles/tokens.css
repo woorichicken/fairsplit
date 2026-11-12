@@ -2,7 +2,7 @@
    .../paypal-ai-hackathon/design/DESIGN.md · design/evidence/stripe/measure/raw-1440.json.
    [실측] 레퍼런스에서 잰 값 · [결정] 우리가 정한 값. 화면 코드는 이 변수만 쓴다.
    기존 변수 이름은 유지하고 값만 바꿨다(다른 세션이 쓰는 중). 새 이름은 아래쪽에 더했다. */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   /* 면 */
@@ -76,6 +76,32 @@
   --brand-face: linear-gradient(150deg, #1d4ed8 0%, #12318f 55%, #0b1f5c 100%); /* [결정] 주색 → 짙은 남색 면. 흰 글자 대비 6.7 이상 */
   --on-brand-2: rgba(255, 255, 255, 0.82);    /* [결정] 색 면 위 보조 글자(남색 위 대비 9+) */
   --on-brand-line: rgba(255, 255, 255, 0.22); /* [결정] 색 면 위 구분선 */
+  /* 폰 2턴(11-12 21시) — 화면마다 레퍼런스 하나를 따라간다(design/mobile-r2/plan.md). 700px 이하에서만 쓴다.
+     M-1 Cash App 랜딩 · M-2 Cash App Money · M-3 Cash App Distribute paycheck · M-4 Apple Wallet (refs/ 390 캡처에서 눈으로 잰 근사값) */
+  --m-canvas: #f2f2f2;        /* [레퍼런스] Cash App 앱 안 회색 바탕 */
+  --m-dark: #0a0a0c;          /* [레퍼런스] Distribute paycheck · Wallet 검은 면 */
+  --m-dark-2: #1c1c1f;        /* [레퍼런스] Wallet Apple Cash 패스 면 */
+  --on-dark-2: rgba(255, 255, 255, 0.68); /* [결정] 검은 면 위 보조 글자(대비 9+) */
+  --m-face-h: 88px;          /* [레퍼런스] Cash App Money — 시트 위로 보이는 색 면 높이(fix1) */
+  --r-card-m: 24px;           /* [레퍼런스] Cash App 흰 카드 모서리(Savings·Pools) */
+  --r-sheet: 32px;            /* [레퍼런스] Cash App Money 흰 시트 · 고리 화면 위 모서리 */
+  --r-pass: 14px;             /* [레퍼런스] Wallet 패스 모서리 */
+  --m-shadow-card: 0 1px 2px rgba(10, 10, 12, 0.04), 0 8px 24px rgba(10, 10, 12, 0.07); /* [결정] 테두리 없는 카드가 바탕에서 뜨게 */
+  --m-shadow-lift: 0 18px 40px rgba(10, 10, 12, 0.22);  /* [결정] 고정 버튼·검은 면 */
+  --m-shadow-pass: 0 -6px 16px rgba(0, 0, 0, 0.35);     /* [결정] 겹친 패스 위쪽 그림자 — 앞 장과 갈라 보이게 */
+  --t-largetitle: 700 30px/36px var(--font);            /* [레퍼런스] iOS large title(Money · Wallet) */
+  --t-cash-hero: 800 42px/44px var(--font);             /* [레퍼런스] Cash App 랜딩 제목 — 아주 굵고 크다(fix1: 500 은 얇아 보였다). 800 은 글꼴 요청에 굵기 하나를 더한다(데스크톱 픽셀 차이 0 확인) */
+  --t-balance: 600 56px/58px var(--font);               /* [레퍼런스] Cash App $789.13 — 화면에서 가장 큰 글자 */
+  --t-card-amount: 600 32px/36px var(--font);           /* [레퍼런스] Cash App 카드 안 $980.00 · $320.00 */
+  --t-pass-name: 700 22px/26px var(--font);             /* [레퍼런스] Wallet 패스 왼쪽 이름(DUNKIN' · DELTA) */
+  --t-pass-label: 600 11px/14px var(--font);            /* [레퍼런스] Wallet 패스 오른쪽 위 BALANCE · MEMBER # */
+  --cta-h: 56px;              /* [레퍼런스] Cash App 「Download Cash App」 알약 높이 */
+  --ring-1: #7aa5ff;          /* [결정] Distribute 고리 초록 3단을 우리 파랑 3단으로 — 검은 면 위 대비 순서대로 */
+  --ring-2: #3d6df2;
+  --ring-3: #2546b8;
+  --pass-1: #1d4ed8;          /* [결정] Wallet 패스 면 3색 — 주색 · 짙은 청록 · 진홍(Delta 패스 계열). 흰 글자 대비 5+ */
+  --pass-2: #0e6655;
+  --pass-3: #9d1f4f;
   --track-display: -0.02em;                   /* [실측] -0.96px / 48px */
   --track-title: -0.02em;                     /* [실측] -0.64px / 32px */
 
