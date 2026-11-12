@@ -5,5 +5,8 @@
   "main": "worker/index.ts",
   "assets": { "directory": "dist", "not_found_handling": "single-page-application", "binding": "ASSETS", "run_worker_first": ["/api/*", "/mcp"] },
   "ai": { "binding": "AI" },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // 프로젝트 저장 — Durable Object 하나(worker/store.ts). SQLite 백엔드.
+  "durable_objects": { "bindings": [{ "name": "PROJECTS", "class_name": "ProjectStore" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ProjectStore"] }]
 }

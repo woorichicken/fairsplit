@@ -11,6 +11,7 @@
     "release": "pnpm build && npx wrangler@4.130.0 deploy"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
     "@solhun/feedback-kit-core": "^0.16.0",
     "@solhun/feedback-kit-web": "^0.16.0",
     "react": "19",
