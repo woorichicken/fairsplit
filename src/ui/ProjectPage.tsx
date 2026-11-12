@@ -231,6 +231,22 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
           </label>
         </header>
 
+        {/* 폰 첫 화면 — 브랜드 색 면 + 큰 숫자 + 상태별 주 버튼 하나(모바일 한 턴 11-12, 700px 이하에만 보인다) */}
+        <MoneyHero
+          project={project}
+          waitingFor={waitingFor.length}
+          busy={busy}
+          action={
+            needsFunding && !project.proposal
+              ? { label: busy === 'fund' ? 'Opening PayPal…' : `Pay ${formatMoney(project.budget)} on PayPal (sandbox)`, run: () => void fund() }
+              : !project.proposal && (project.status === 'draft' || project.status === 'funded') && n > 0 && !thinking
+                ? { label: 'Let the AI propose the split', run: () => void act('propose', () => api.propose(id)) }
+                : showDecide && waitingFor.length > 0
+                  ? { label: viewerApproved ? 'See who still has to approve' : `Review v${version} and decide`, run: () => document.getElementById('decide-title')?.scrollIntoView({ behavior: 'smooth', block: 'center' }) }
+                  : null
+          }
+        />
+
         <Stepper project={project} />
 
         {/* 첫 화면에서 할 일이 한 문장으로 읽히게(toss-lens one-thing) — 주 버튼을 늘리지 않으려고 링크로 */}
@@ -474,5 +490,63 @@ function ActionAlert({ error }: { error: ApiError }) {
     <p role="alert" className="alert" ref={ref}>
       {humanError(error)}
     </p>
+  );
+}
+
+// ───────── 폰 첫 화면 요약 — 「얼마가 어디 있고, 누가 얼마 받나」를 큰 숫자로(모바일 한 턴 11-12) ─────────
+// 레퍼런스: Cash App·Wise·Venmo 모바일 첫 화면(브랜드 색 면 + 굵은 숫자 + 버튼 하나). 데스크톱은 기존 화면 그대로라 CSS 로 숨긴다.
+type HeroAction = { label: string; run: () => void } | null;
+
+function heroLine(project: Project, waitingFor: number): { kicker: string; line: string } {
+  const funded = !!project.order?.authorizationId;
+  const total = project.contributors.length;
+  const version = project.proposal?.version ?? 0;
+  switch (project.status) {
+    case 'paid':
+      return { kicker: 'Paid', line: `PayPal sent all ${total} shares in one Payouts batch.` };
+    case 'agreed':
+    case 'paying':
+      return { kicker: 'Everyone agreed', line: 'PayPal is capturing the payment and sending the payouts.' };
+    case 'proposed':
+    case 'disputed':
+      return {
+        kicker: funded ? 'Held on PayPal' : 'Waiting for PayPal funding',
+        line: `AI split v${version} · ${total - waitingFor} of ${total} approved. Money moves only when all ${total} agree.`,
+      };
+    case 'funded':
+      return { kicker: 'Held on PayPal', line: 'Authorized, not captured. Next, the AI reads the log and proposes a split.' };
+    default:
+      return { kicker: 'Waiting for PayPal funding', line: `${project.client.name} pays on PayPal first. Nobody is paid until everyone agrees.` };
+  }
+}
+
+function MoneyHero({ project, waitingFor, busy, action }: { project: Project; waitingFor: number; busy: Busy; action: HeroAction }) {
+  const { kicker, line } = heroLine(project, waitingFor);
+  const shares = project.proposal?.shares ?? [];
+  return (
+    <section className={`money-hero money-hero-${project.status}`} aria-label="Summary">
+      <p className="money-kicker">{kicker}</p>
+      <p className="money-total">{formatMoney(project.budget)}</p>
+      <p className="money-line">{line}</p>
+      {shares.length > 0 && (
+        <ul className="money-shares">
+          {shares.map((s) => {
+            const who = project.contributors.find((c) => c.id === s.contributorId);
+            return (
+              <li key={s.contributorId} className="money-share">
+                <span className="money-name">{who?.name ?? s.contributorId}</span>
+                <span className="money-pct">{s.percent}%</span>
+                <span className="money-amt">{formatMoney(s.amount)}</span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {action && (
+        <button type="button" className="btn btn-lg money-cta" onClick={action.run} disabled={busy !== null}>
+          {action.label}
+        </button>
+      )}
+    </section>
   );
 }

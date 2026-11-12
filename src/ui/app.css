@@ -246,8 +246,45 @@ code, .tool { overflow-wrap: anywhere; }
   .step { flex-direction: column; text-align: center; gap: var(--s-1); padding: var(--s-2) var(--s-1); }
   .step-label, .step-current .step-label { font: var(--t-label); }
   .project-head { align-items: stretch; }
-  .project-title, .landing-title { font: var(--t-title); letter-spacing: var(--track-title); }
+  .project-title { font: var(--t-title); font-weight: 700; letter-spacing: var(--track-title); }
   .viewer { width: 100%; }
+}
+
+/* 폰 첫 화면 요약 — 700px 이하에만(데스크톱 화면·영상은 그대로) */
+.money-hero, .hero-shares { display: none; }
+@media (max-width: 700px) {
+  .money-hero {
+    display: grid; gap: var(--s-2); padding: var(--s-5) var(--s-4); border-radius: var(--r-l);
+    background: var(--brand-face); color: var(--on-accent); box-shadow: var(--shadow-float);
+  }
+  .money-kicker { font: var(--t-label); text-transform: uppercase; letter-spacing: 0.06em; color: var(--on-brand-2); }
+  .money-total { font: var(--t-money-xl); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .money-line { font: var(--t-small); color: var(--on-brand-2); }
+  .money-shares { list-style: none; margin: var(--s-2) 0 0; padding: var(--s-3) 0 0; border-top: 1px solid var(--on-brand-line); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+  .money-share { display: grid; gap: 2px; min-width: 0; }
+  .money-name { font: var(--t-small); color: var(--on-brand-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .money-pct { font: var(--t-money-l); font-variant-numeric: tabular-nums; }
+  .money-amt { font: var(--t-small); font-variant-numeric: tabular-nums; color: var(--on-brand-2); }
+  .money-cta { width: 100%; margin-top: var(--s-2); background: var(--on-accent); border-color: var(--on-accent); color: var(--accent); font-weight: 600; }
+  .money-cta:hover:not(:disabled) { background: var(--accent-soft); }
+  .money-hero-paid .money-kicker::before { content: '✓ '; }
+  /* 폰에서는 요약 칸의 버튼이 같은 일을 한다 — 「Next: … Go to your decision」 줄은 겹쳐서 숨긴다 */
+  .next-step { display: none; }
+  .hero-shares { display: grid; gap: var(--s-1); width: 100%; }
+  .hero-shares .money-shares { margin-top: 0; }
+
+  /* 랜딩 — 제목 블록을 브랜드 색 면으로, 굵게 · 미리보기 숫자 크게 */
+  .landing { padding-top: var(--s-4); gap: var(--s-5); }
+  .hero-copy { padding: var(--s-5) var(--s-4); border-radius: var(--r-l); background: var(--brand-face); color: var(--on-accent); box-shadow: var(--shadow-float); }
+  .hero-copy .eyebrow, .hero-copy .landing-lead, .hero-copy .muted { color: var(--on-brand-2); }
+  .landing-title { font: var(--t-hero-m); letter-spacing: -0.02em; }
+  .hero-cta { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-2); }
+  .hero-cta .btn { width: 100%; }
+  .hero-cta .btn-primary { background: var(--on-accent); border-color: var(--on-accent); color: var(--accent); font-weight: 600; }
+  .hero-cta .btn-primary:hover:not(:disabled) { background: var(--accent-soft); }
+  .hero-cta .btn:not(.btn-primary) { background: transparent; border-color: var(--on-brand-line); color: var(--on-accent); }
+  .hero-preview .share-num .num { font: var(--t-money-l); }
+  .project-title { font-weight: 700; }
 }
 
 /* 데스크톱 — 왼쪽 로그(패널 폭 고정, 따라 내려옴) · 오른쪽 분배 */

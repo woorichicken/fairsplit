@@ -69,6 +69,13 @@
   --t-small: 400 14px/19.6px var(--font);     /* [실측] Stripe 14/19.6 */
   --t-label: 500 12px/16px var(--mono);       /* [결정] 영문 숫자·ID 라벨 */
   --t-num: 500 20px/24px var(--font);         /* [결정] 금액·퍼센트. tabular-nums 같이 */
+  /* 폰 첫 화면(모바일 한 턴 11-12) — Cash App·Wise·Venmo 390px 캡처(design/mobile-1112/refs)에서: 굵은 제목 · 큰 금액 · 브랜드 색 면 */
+  --t-hero-m: 700 34px/38px var(--font);      /* [결정] 폰 제목 — Wise·Cash App 처럼 굵게(Stripe 300 은 폰에서 약했다) */
+  --t-money-xl: 700 44px/48px var(--font);    /* [결정] 총액 — Cash App 잔액 카드처럼 첫 화면에서 가장 큰 글자 */
+  --t-money-l: 700 30px/34px var(--font);     /* [결정] 사람별 % */
+  --brand-face: linear-gradient(150deg, #1d4ed8 0%, #12318f 55%, #0b1f5c 100%); /* [결정] 주색 → 짙은 남색 면. 흰 글자 대비 6.7 이상 */
+  --on-brand-2: rgba(255, 255, 255, 0.82);    /* [결정] 색 면 위 보조 글자(남색 위 대비 9+) */
+  --on-brand-line: rgba(255, 255, 255, 0.22); /* [결정] 색 면 위 구분선 */
   --track-display: -0.02em;                   /* [실측] -0.96px / 48px */
   --track-title: -0.02em;                     /* [실측] -0.64px / 32px */
 

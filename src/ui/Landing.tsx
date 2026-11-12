@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ApiError, fixtureFromUrl, getApi } from './api';
 import { NEW_PATH, type Navigate } from './App';
 import { recordedStoryProject } from './fixtures';
+import { formatMoney } from './format';
 import { previousProposal, SplitCard, TopBar } from './parts';
 
 const HOW_IT_WORKS = [
@@ -48,6 +49,21 @@ export function Landing({ navigate }: { navigate: Navigate }) {
           <div className="hero-copy">
             <p className="eyebrow">For small creative teams paid by one client</p>
             <h1 className="landing-title">One PayPal payment, split by the work everyone actually did.</h1>
+            {/* 폰 첫 화면에 분배 결과 숫자를 크게(모바일 한 턴 11-12) — 데스크톱은 오른쪽 카드가 이미 보여서 CSS 로 숨긴다 */}
+            {preview.proposal && (
+              <div className="hero-shares" aria-label="Recorded example split">
+                <p className="money-kicker">Recorded example · {formatMoney(preview.budget)} from {preview.client.name}</p>
+                <ul className="money-shares">
+                  {preview.proposal.shares.map((s) => (
+                    <li key={s.contributorId} className="money-share">
+                      <span className="money-name">{preview.contributors.find((c) => c.id === s.contributorId)?.name ?? s.contributorId}</span>
+                      <span className="money-pct">{s.percent}%</span>
+                      <span className="money-amt">{formatMoney(s.amount)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <p className="landing-lead">
               FairSplit’s AI reads the production log and proposes each person’s share, with evidence. Anyone can dispute. Money moves only
               when everyone agrees.
