@@ -115,6 +115,7 @@ test('state: 5xx shows a calm message, not the server text', async ({ page }) =>
   await page.route('**/api/projects/p3', (r) => r.fulfill({ json: { ...fixtureProject('v1'), id: 'p3' } }));
   await page.route('**/api/projects/p3/disputes', (r) => r.fulfill({ status: 502, json: { error: { code: 'PAYPAL_INTERNAL', message: 'upstream INTERNAL_SERVICE_ERROR at api-m' } } }));
   await page.goto('/p/p3');
+  await page.getByRole('button', { name: 'Dispute this split' }).click();
   await page.getByLabel(/Something missing\? Tell the AI/).fill('Please re-check.');
   await page.getByRole('button', { name: 'Send dispute' }).click();
   const alert = page.getByRole('alert');
@@ -131,6 +132,7 @@ test('state: AI thinking for 15+ seconds tells the user about the fallback', asy
     /* 답하지 않는다 — 느린 AI */
   });
   await page.goto('/p/p4');
+  await page.getByRole('button', { name: 'Dispute this split' }).click();
   await page.getByLabel(/Something missing\? Tell the AI/).fill('Please re-check.');
   await page.getByRole('button', { name: 'Send dispute' }).click();
   await expect(page.getByText(`Re-reading ${V1.log.length} log events`)).toBeVisible();
@@ -159,7 +161,7 @@ test('Use your own log: the example creates a project and opens it', async ({ pa
   });
   await page.route('**/api/projects/imp1', (r) => r.fulfill({ json: created }));
   await page.goto('/');
-  await page.getByRole('button', { name: 'Use your own log' }).click();
+  await page.getByRole('button', { name: 'Split your own job' }).click();
   await expect(page).toHaveURL(/\/new$/);
   await page.getByRole('button', { name: 'Create project' }).click();
   await expect(page).toHaveURL(/\/p\/imp1$/);

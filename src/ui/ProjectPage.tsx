@@ -48,6 +48,8 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
   const [highlight, setHighlight] = useState<string[]>([]);
   const [disputeText, setDisputeText] = useState('');
   const [missing, setMissing] = useState<MissingDraft>(EMPTY_MISSING);
+  // 이의 폼은 누를 때만 — 처음 보는 사람에게 결정 카드의 할 일은 「동의」 하나로 보이게(6회차)
+  const [disputeOpen, setDisputeOpen] = useState(false);
   const [slow, setSlow] = useState(false);
 
   // 첫 로드 — PayPal 에서 돌아온 경우(?paypal=return&token=<orderId>)면 fund/complete 를 먼저 부른다
@@ -151,6 +153,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
     if (await act('dispute', () => api.dispute(id, viewerId, text, work))) {
       setDisputeText('');
       setMissing(EMPTY_MISSING);
+      setDisputeOpen(false);
     }
   }
 
@@ -196,7 +199,9 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
   const weakDisputer = project.contributors.find((c) => c.id === EXAMPLE_WEAK.contributorId);
   const missingDisputer = project.contributors.find((c) => c.id === EXAMPLE_MISSING.contributorId);
   // 사람당 판마다 1번 — 이 판에 이미 걸었거나 이 판이 자기 이의의 답이면 폼 대신 안내(서버도 409 DISPUTE_LIMIT)
-  const viewerDispute = viewer ? project.disputes.find((d) => d.contributorId === viewer.id && (d.onVersion === version || d.answeredInVersion === version)) : undefined;
+  const disputeOf = (personId: string) => project.disputes.find((d) => d.contributorId === personId && (d.onVersion === version || d.answeredInVersion === version));
+  const blockedOn = (personId: string) => Boolean(disputeOf(personId));
+  const viewerDispute = viewer ? disputeOf(viewer.id) : undefined;
   const n = project.log.length;
 
   return (
@@ -313,9 +318,13 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                     : `Waiting for ${waitingFor.map((c) => c.name).join(', ')}. PayPal sends money only when all ${project.contributors.length} approve. Switch “Viewing as” to act for someone else (demo only).`}
                 </p>
 
-                {(weakDisputer || missingDisputer) && (
-                  <div className="row try-row">
-                    {weakDisputer && (
+                <div className="row try-row">
+                  {!viewerDispute && (
+                    <button type="button" className="btn" aria-expanded={disputeOpen} aria-controls="dispute-form" onClick={() => setDisputeOpen((o) => !o)} disabled={busy !== null}>
+                      {disputeOpen ? 'Close dispute' : 'Dispute this split'}
+                    </button>
+                  )}
+                    {weakDisputer && !blockedOn(weakDisputer.id) && (
                       <button
                         type="button"
                         className="btn btn-quiet try-weak"
@@ -323,13 +332,14 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                           setViewerId(weakDisputer.id);
                           setDisputeText(EXAMPLE_WEAK.text);
                           setMissing(EMPTY_MISSING);
+                          setDisputeOpen(true);
                         }}
                         disabled={busy !== null}
                       >
                         Try a weak dispute (as {weakDisputer.name})
                       </button>
                     )}
-                    {missingDisputer && (
+                    {missingDisputer && !blockedOn(missingDisputer.id) && (
                       <button
                         type="button"
                         className="btn btn-quiet try-weak"
@@ -338,21 +348,23 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                           setViewerId(missingDisputer.id);
                           setDisputeText(EXAMPLE_MISSING.text);
                           setMissing({ open: true, kind: w.kind, title: w.title, minutes: w.minutes === undefined ? '' : String(w.minutes), at: toLocalInput(w.at) });
+                          setDisputeOpen(true);
                         }}
                         disabled={busy !== null}
                       >
                         Try adding missing work (as {missingDisputer.name})
                       </button>
                     )}
-                  </div>
-                )}
+                </div>
                 {viewerDispute ? (
                   <p className="small muted dispute-used">
                     {viewer.name} already {viewerDispute.onVersion === version ? `disputed v${version}` : `got an answer in v${version}`}. Each person gets one dispute per version
                     — approve it, or wait until someone else’s dispute brings a new version.
                   </p>
                 ) : (
+                  disputeOpen && (
                 <form
+                  id="dispute-form"
                   className="dispute"
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -405,6 +417,7 @@ export function ProjectPage({ id, navigate }: { id: string; navigate: Navigate }
                   </button>
                   <p className="small muted">The AI re-reads the log and proposes a new version. Shares change only if the log supports it. Approvals reset with every new version.</p>
                 </form>
+                  )
                 )}
               </section>
             )}

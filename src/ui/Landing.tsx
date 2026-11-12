@@ -57,10 +57,12 @@ export function Landing({ navigate }: { navigate: Navigate }) {
                 {busy ? 'Setting up the demo…' : 'Try the demo'}
               </button>
               <button type="button" className="btn btn-lg" onClick={() => navigate(`${NEW_PATH}${window.location.search}`)}>
-                Use your own log
+                Split your own job
               </button>
             </div>
-            <p className="muted small">Sandbox demo — no real money moves.</p>
+            <p className="muted small">
+              Sandbox demo — no real money moves. To split your own job, paste your team’s work log (CSV).
+            </p>
             {error && (
               <p role="alert" className="alert">
                 {error}
@@ -69,13 +71,13 @@ export function Landing({ navigate }: { navigate: Navigate }) {
           </div>
           <div className="hero-preview">
             <SplitCard project={preview} onEvidence={noop} activeEvidence={[]} compact />
-            {caption && (
-              <p className="small muted preview-caption">
-                Recorded AI answers from the demo: {caption.weak} asked for 70% with no new evidence — no change. {caption.missing} added missing work
-                to the log ({caption.added}, marked as added in a dispute) — {caption.was}% → {caption.now}%.
-              </p>
-            )}
           </div>
+          {caption && (
+            <p className="small muted preview-caption hero-caption">
+              Recorded AI answers from the demo: {caption.weak} asked for 70% with no new evidence — no change. {caption.missing} added missing work
+              to the log ({caption.added}, marked as added in a dispute) — {caption.was}% → {caption.now}%.
+            </p>
+          )}
         </section>
         <ol className="how">
           {HOW_IT_WORKS.map((step, i) => (
