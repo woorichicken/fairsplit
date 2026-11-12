@@ -1,10 +1,12 @@
 {
   // account_id 를 개인 계정으로 채운다 — 이 맥의 wrangler 기본은 회사 계정이다.
   "name": "fairsplit",
+  "account_id": "4521ed2f6bd35977301d9344ffcbbc8e",
+  "workers_dev": false,
+  "routes": [{ "pattern": "fairsplit.solhun.com", "custom_domain": true }],
   "compatibility_date": "2026-08-22",
   "main": "worker/index.ts",
   "assets": { "directory": "dist", "not_found_handling": "single-page-application", "binding": "ASSETS", "run_worker_first": ["/api/*", "/mcp"] },
-  "ai": { "binding": "AI" },
   "observability": { "enabled": true },
   // 프로젝트 저장 — Durable Object 하나(worker/store.ts). SQLite 백엔드.
   "durable_objects": { "bindings": [{ "name": "PROJECTS", "class_name": "ProjectStore" }] },

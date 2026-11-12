@@ -49,7 +49,7 @@ export async function createOrder(env: PayPalEnv, o: { projectId: string; title:
   const out = await call<{ id: string; status: string; links: OrderLink[] }>(env, 'POST', '/v2/checkout/orders', {
     intent: 'AUTHORIZE',
     purchase_units: [{ reference_id: o.projectId, description: o.title.slice(0, 127), amount: { currency_code: o.amount.currency, value: o.amount.value } }],
-    payment_source: { paypal: { experience_context: { return_url: o.returnUrl, cancel_url: o.cancelUrl, brand_name: 'FairSplit', user_action: 'PAY_NOW', shipping_preference: 'NO_SHIPPING' } } },
+    payment_source: { paypal: { experience_context: { return_url: o.returnUrl, cancel_url: o.cancelUrl, brand_name: 'FairSplit', locale: 'en-US', user_action: 'PAY_NOW', shipping_preference: 'NO_SHIPPING' } } },
   }, `fund-${o.projectId}-${Date.now()}`);
   const link = out.links.find((l) => l.rel === 'payer-action' || l.rel === 'approve');
   if (!link) throw new PayPalError(502, 'NO_APPROVE_LINK', 'PayPal did not return an approval link.');
