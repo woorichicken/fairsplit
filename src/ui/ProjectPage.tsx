@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import type { LogKind, Project } from '../shared/types';
 import { ApiError, fixtureFromUrl, getApi, type MissingWork } from './api';
 import { EXAMPLE_MISSING, EXAMPLE_WEAK } from './fixtures';
@@ -525,11 +525,20 @@ function heroLine(project: Project, waitingFor: number): { kicker: string; line:
   }
 }
 
+// 폰 결정 화면의 나눔 고리(Cash App Distribute paycheck) — 조각 경계를 누적 %로 CSS 변수에 넘긴다(--p1 = 첫 사람 끝, --p2 = 둘째 끝).
+// 색·두께는 app.css 가 정한다. 데스크톱은 요약 칸 자체가 숨겨져 영향 없다.
+function ringStops(shares: readonly { percent: number }[]): CSSProperties | undefined {
+  if (shares.length === 0) return undefined;
+  const first = shares[0]!.percent;
+  const second = first + (shares[1]?.percent ?? 0);
+  return { '--p1': `${first}%`, '--p2': `${second}%` } as CSSProperties;
+}
+
 function MoneyHero({ project, waitingFor, busy, action }: { project: Project; waitingFor: number; busy: Busy; action: HeroAction }) {
   const { kicker, line } = heroLine(project, waitingFor);
   const shares = project.proposal?.shares ?? [];
   return (
-    <section className={`money-hero money-hero-${project.status}`} aria-label="Summary">
+    <section className={`money-hero money-hero-${project.status}`} aria-label="Summary" style={ringStops(shares)}>
       <p className="money-kicker">{kicker}</p>
       <p className="money-total">{formatMoney(project.budget)}</p>
       <p className="money-line">{line}</p>
